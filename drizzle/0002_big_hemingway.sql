@@ -1,0 +1,2 @@
+ALTER TABLE "payments" ADD COLUMN "payment_month" text NOT NULL;--> statement-breakpoint
+ALTER TABLE "payments" ADD CONSTRAINT "payments_member_id_payment_month_unique" UNIQUE("member_id","payment_month");
