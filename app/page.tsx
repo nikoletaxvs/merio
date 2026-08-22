@@ -1,5 +1,5 @@
 import type { ReactNode } from "react";
-import { Button, SpotifyMark } from "@/components/ui";
+import { Button, MerioMark } from "@/components/ui";
 
 export default function Home() {
   return (
@@ -7,10 +7,8 @@ export default function Home() {
       <header className="border-b border-border">
         <nav className="mx-auto flex w-full max-w-5xl items-center justify-between px-6 py-4">
           <div className="flex items-center gap-2.5">
-            <SpotifyMark className="h-7 w-7" />
-            <span className="text-lg font-bold tracking-tight">
-              Spotify Payments
-            </span>
+            <MerioMark className="h-7 w-7 text-black" />
+            <span className="text-lg font-bold tracking-tight">Merio</span>
           </div>
           <Button href="/dashboard" variant="secondary" className="px-4">
             Dashboard
@@ -24,11 +22,11 @@ export default function Home() {
           <div className="relative mx-auto flex w-full max-w-5xl flex-col items-center px-6 py-24 text-center sm:py-32">
             <span className="inline-flex items-center gap-2 rounded-full border border-border bg-surface px-3.5 py-1.5 text-xs font-semibold text-muted">
               <span className="h-2 w-2 rounded-full bg-brand" />
-              Spotify Premium split, made simple
+              Shared subscription payments, made simple
             </span>
 
             <h1 className="mt-6 max-w-2xl text-balance text-4xl font-bold tracking-tight sm:text-6xl">
-              Split your Spotify Premium,{" "}
+              Split your subscription,{" "}
               <span className="text-brand">effortlessly</span>.
             </h1>
 

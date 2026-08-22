@@ -1,5 +1,5 @@
 {
-  "name": "spotify-payments",
+  "name": "merio",
   "version": "0.1.0",
   "private": true,
   "scripts": {
@@ -12,6 +12,7 @@
     "dotenv": "^17.4.2",
     "drizzle-orm": "^0.45.2",
     "next": "16.3.0",
+    "nodemailer": "^9.0.5",
     "postgres": "^3.4.9",
     "react": "19.2.8",
     "react-dom": "19.2.8"
@@ -19,6 +20,7 @@
   "devDependencies": {
     "@tailwindcss/postcss": "^4",
     "@types/node": "^20",
+    "@types/nodemailer": "^8.0.1",
     "@types/react": "^19",
     "@types/react-dom": "^19",
     "drizzle-kit": "^0.31.10",

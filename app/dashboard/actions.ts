@@ -5,17 +5,43 @@ import { and, eq } from "drizzle-orm";
 import { db } from "@/db";
 import { members, subscriptions, users } from "@/db/schema";
 
+export async function updateFamilySettings(formData: FormData) {
+  const familyName = formData.get("familyName");
+  const photoUrl = formData.get("photoUrl");
+
+  if (
+    (typeof familyName !== "string" || familyName.trim() === "") &&
+    (typeof photoUrl !== "string" || photoUrl.trim() === "")
+  ) {
+    throw new Error("Provide a family name or photo URL");
+  }
+
+  await db
+    .update(subscriptions)
+    .set({
+      familyName:
+        typeof familyName === "string" && familyName.trim()
+          ? familyName.trim()
+          : undefined,
+      photoUrl:
+        typeof photoUrl === "string" && photoUrl.trim()
+          ? photoUrl.trim()
+          : undefined,
+    })
+    .where(eq(subscriptions.ownerId, 1));
+}
+
 export async function createSubscription(formData: FormData) {
   const name = formData.get("name");
   const amountCents = formData.get("amountCents");
+  const startDate = formData.get("startDate");
   const generationDay = formData.get("generationDay");
-  const dueDay = formData.get("dueDay");
 
   if (
     typeof name !== "string" ||
     typeof amountCents !== "string" ||
-    typeof generationDay !== "string" ||
-    typeof dueDay !== "string"
+    typeof startDate !== "string" ||
+    typeof generationDay !== "string"
   ) {
     throw new Error("Invalid form data");
   }
@@ -24,8 +50,8 @@ export async function createSubscription(formData: FormData) {
     ownerId: 1,
     name,
     amountCents: Number(amountCents),
+    startDate,
     generationDay: Number(generationDay),
-    dueDay: Number(dueDay),
   });
 }
 export async function addMember(formData: FormData) {
