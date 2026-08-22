@@ -5,8 +5,6 @@ import { payments } from "@/db/schema";
 import { getCurrentPeriod } from "@/lib/periods";
 
 export async function generatePayments() {
-  const today = new Date();
-
   const allSubscriptions = await db.query.subscriptions.findMany({
     with: {
       members: true,
@@ -16,10 +14,6 @@ export async function generatePayments() {
   let generated = 0;
 
   for (const subscription of allSubscriptions) {
-    if (subscription.generationDay !== today.getDate()) {
-      continue;
-    }
-
     const { start, end } = getCurrentPeriod(subscription.startDate);
 
     for (const member of subscription.members) {
