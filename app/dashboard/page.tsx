@@ -6,6 +6,8 @@ import { addMember, updateFamilySettings } from "./actions";
 import CopyPaymentLinkButton from "./CopyPaymentLink";
 import { formatPeriod, getCurrentPeriod } from "@/lib/periods";
 
+export const dynamic = "force-dynamic";
+
 export default async function DashboardPage() {
   const subscription = await db.query.subscriptions.findFirst({
     where: eq(subscriptions.ownerId, 1),
