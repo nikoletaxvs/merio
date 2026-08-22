@@ -4,7 +4,7 @@ import { eq } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
 
 import { db } from "@/db";
-import { members, payments } from "@/db/schema";
+import { payments } from "@/db/schema";
 
 export async function markPaymentAsPaid(paymentId: number) {
   const payment = await db.query.payments.findFirst({

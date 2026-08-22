@@ -1,4 +1,5 @@
 import {
+  date,
   integer,
   pgTable,
   serial,
@@ -27,8 +28,12 @@ export const subscriptions = pgTable("subscriptions", {
   name: text("name").notNull(),
   amountCents: integer("amount_cents").notNull(),
 
+  familyName: text("family_name"),
+  photoUrl: text("photo_url"),
+
+  startDate: date("start_date").notNull(),
+
   generationDay: integer("generation_day").notNull(),
-  dueDay: integer("due_day").notNull(),
 
   createdAt: timestamp("created_at").defaultNow().notNull(),
 });
@@ -58,9 +63,8 @@ export const payments = pgTable(
 
     amountCents: integer("amount_cents").notNull(),
 
-    paymentMonth: text("payment_month").notNull(),
-
-    dueDate: timestamp("due_date").notNull(),
+    periodStart: date("period_start").notNull(),
+    periodEnd: date("period_end").notNull(),
 
     status: text("status").notNull(),
 
@@ -69,7 +73,7 @@ export const payments = pgTable(
     createdAt: timestamp("created_at").defaultNow().notNull(),
   },
   (table) => ({
-    memberPaymentMonthUnique: unique().on(table.memberId, table.paymentMonth),
+    memberPeriodUnique: unique().on(table.memberId, table.periodStart),
   }),
 );
 

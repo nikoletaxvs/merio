@@ -1,7 +1,7 @@
 import Link from "next/link";
 import type { ComponentProps, ReactNode } from "react";
 
-export function SpotifyMark({ className = "" }: { className?: string }) {
+export function MerioMark({ className = "" }: { className?: string }) {
   return (
     <svg
       viewBox="0 0 24 24"
@@ -9,17 +9,14 @@ export function SpotifyMark({ className = "" }: { className?: string }) {
       aria-hidden="true"
       fill="none"
     >
-      <circle cx="12" cy="12" r="12" className="fill-brand" />
-      <g
-        stroke="black"
-        strokeWidth="1.7"
+      <rect width="24" height="24" rx="6.5" className="fill-brand" />
+      <path
+        d="M6.5 16.5v-9l5.5 9 5.5-9v9"
+        stroke="currentColor"
+        strokeWidth="2.2"
         strokeLinecap="round"
-        className="opacity-90"
-      >
-        <path d="M6.6 16.6c3.6-1.5 7.9-1.2 10.8 1" />
-        <path d="M7.8 13.3c3-1.2 6.6-1 9 .8" />
-        <path d="M9.3 9.9c2.3-.9 5.1-.6 7 .7" />
-      </g>
+        strokeLinejoin="round"
+      />
     </svg>
   );
 }

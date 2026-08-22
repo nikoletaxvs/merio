@@ -13,8 +13,8 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Spotify Payments",
-  description: "Split your Spotify Premium with friends.",
+  title: "Merio",
+  description: "Split shared subscription payments with friends, effortlessly.",
 };
 
 export default function RootLayout({ children }: LayoutProps<"/">) {

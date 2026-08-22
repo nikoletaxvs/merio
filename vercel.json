@@ -1,0 +1,12 @@
+{
+  "crons": [
+    {
+      "path": "/api/payments/generate",
+      "schedule": "0 0 * * *"
+    },
+    {
+      "path": "/api/payments/remind",
+      "schedule": "0 9 * * *"
+    }
+  ]
+}

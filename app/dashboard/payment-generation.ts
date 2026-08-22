@@ -1,15 +1,11 @@
 import { and, eq } from "drizzle-orm";
 
 import { db } from "@/db";
-import { members, payments, subscriptions } from "@/db/schema";
+import { payments } from "@/db/schema";
+import { getCurrentPeriod } from "@/lib/periods";
 
 export async function generatePayments() {
   const today = new Date();
-
-  const currentYear = today.getFullYear();
-  const currentMonth = today.getMonth();
-
-  const paymentMonth = `${currentYear}-${String(currentMonth + 1).padStart(2, "0")}`;
 
   const allSubscriptions = await db.query.subscriptions.findMany({
     with: {
@@ -24,11 +20,13 @@ export async function generatePayments() {
       continue;
     }
 
+    const { start, end } = getCurrentPeriod(subscription.startDate);
+
     for (const member of subscription.members) {
       const existingPayment = await db.query.payments.findFirst({
         where: and(
           eq(payments.memberId, member.id),
-          eq(payments.paymentMonth, paymentMonth),
+          eq(payments.periodStart, start),
         ),
       });
 
@@ -36,13 +34,11 @@ export async function generatePayments() {
         continue;
       }
 
-      const dueDate = new Date(currentYear, currentMonth, subscription.dueDay);
-
       await db.insert(payments).values({
         memberId: member.id,
         amountCents: subscription.amountCents,
-        paymentMonth,
-        dueDate,
+        periodStart: start,
+        periodEnd: end,
         status: "pending",
       });
 
@@ -52,6 +48,5 @@ export async function generatePayments() {
 
   return {
     generated,
-    paymentMonth,
   };
 }
