@@ -1,7 +1,7 @@
 import { and, eq } from "drizzle-orm";
 
 import { db } from "@/db";
-import { payments } from "@/db/schema";
+import { members, payments } from "@/db/schema";
 import { sendEmail } from "@/lib/email";
 import { formatPeriod, getCurrentPeriod } from "@/lib/periods";
 
@@ -75,6 +75,66 @@ export async function sendPeriodStartReminders(
   return {
     reminded,
   };
+}
+
+export async function sendReminderToMember(memberId: number, baseUrl: string) {
+  const member = await db.query.members.findFirst({
+    where: eq(members.id, memberId),
+    with: {
+      user: true,
+      subscription: true,
+    },
+  });
+
+  if (!member) {
+    throw new Error("Member not found");
+  }
+
+  const { start: periodStart, end: periodEnd } = getCurrentPeriod(
+    member.subscription.startDate,
+  );
+
+  let payment = await db.query.payments.findFirst({
+    where: and(
+      eq(payments.memberId, member.id),
+      eq(payments.periodStart, periodStart),
+    ),
+  });
+
+  if (!payment) {
+    const inserted = await db
+      .insert(payments)
+      .values({
+        memberId: member.id,
+        amountCents: member.subscription.amountCents,
+        periodStart,
+        periodEnd,
+        status: "pending",
+      })
+      .returning();
+
+    payment = inserted[0];
+  }
+
+  if (payment.status === "paid") {
+    return { sent: false };
+  }
+
+  await sendEmail({
+    to: { email: member.user.email, name: member.user.name },
+    subject: `Your ${familyNameOf(member.subscription)} payment is ready`,
+    html: reminderEmailHtml({
+      name: member.user.name,
+      subscriptionName: member.subscription.name,
+      familyName: familyNameOf(member.subscription),
+      photoUrl: member.subscription.photoUrl,
+      amountCents: payment.amountCents,
+      period: formatPeriod(periodStart, periodEnd),
+      payUrl: `${baseUrl}/pay/${member.token}`,
+    }),
+  });
+
+  return { sent: true };
 }
 
 function reminderEmailHtml({
