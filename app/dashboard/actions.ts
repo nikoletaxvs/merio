@@ -2,8 +2,26 @@
 
 import crypto from "crypto";
 import { and, eq } from "drizzle-orm";
+import { headers } from "next/headers";
+import { revalidatePath } from "next/cache";
 import { db } from "@/db";
 import { members, subscriptions, users } from "@/db/schema";
+import { generatePayments } from "./payment-generation";
+import { sendReminderToMember } from "./period-reminders";
+
+export async function activateAllPayments() {
+  await generatePayments();
+  revalidatePath("/dashboard");
+}
+
+export async function remindMember(memberId: number) {
+  const headersList = await headers();
+  const host = headersList.get("host") ?? "localhost:3000";
+  const proto = headersList.get("x-forwarded-proto") ?? "http";
+
+  await sendReminderToMember(memberId, `${proto}://${host}`);
+  revalidatePath("/dashboard");
+}
 
 export async function updateFamilySettings(formData: FormData) {
   const familyName = formData.get("familyName");

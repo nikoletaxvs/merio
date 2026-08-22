@@ -2,7 +2,12 @@ import { eq } from "drizzle-orm";
 import { db } from "@/db";
 import { subscriptions } from "@/db/schema";
 import { Badge, Button, Card, MerioMark } from "@/components/ui";
-import { addMember, updateFamilySettings } from "./actions";
+import {
+  activateAllPayments,
+  addMember,
+  remindMember,
+  updateFamilySettings,
+} from "./actions";
 import CopyPaymentLinkButton from "./CopyPaymentLink";
 import { formatPeriod, getCurrentPeriod } from "@/lib/periods";
 
@@ -132,9 +137,17 @@ export default async function DashboardPage() {
               </p>
             </div>
 
-            <span className="text-sm text-white/40">
-              {members.length} {members.length === 1 ? "member" : "members"}
-            </span>
+            <div className="flex items-center gap-3">
+              <span className="text-sm text-white/40">
+                {members.length} {members.length === 1 ? "member" : "members"}
+              </span>
+
+              <form action={activateAllPayments}>
+                <Button type="submit" variant="secondary" className="!px-4 !py-2 text-xs">
+                  Activate all
+                </Button>
+              </form>
+            </div>
           </div>
 
           <div className="mt-4 overflow-hidden rounded-2xl border border-white/10 bg-white/[0.03]">
@@ -174,6 +187,18 @@ export default async function DashboardPage() {
                             <p className="font-semibold tabular-nums">
                               €{(member.payment.amountCents / 100).toFixed(2)}
                             </p>
+
+                            {!isPaid && (
+                              <form action={remindMember.bind(null, member.id)}>
+                                <Button
+                                  type="submit"
+                                  variant="secondary"
+                                  className="!px-3 !py-1.5 text-xs"
+                                >
+                                  Remind
+                                </Button>
+                              </form>
+                            )}
 
                             <Badge tone={isPaid ? "success" : "pending"}>
                               {isPaid ? "Paid" : "Pending"}
