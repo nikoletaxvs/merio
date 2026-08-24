@@ -23,6 +23,28 @@ export async function remindMember(memberId: number) {
   revalidatePath("/dashboard");
 }
 
+export async function updateBillingPeriod(formData: FormData): Promise<void> {
+  const startDate = formData.get("startDate");
+  const generationDay = formData.get("generationDay");
+
+  if (typeof startDate !== "string" || !/^\d{4}-\d{2}-\d{2}$/.test(startDate)) {
+    throw new Error("Invalid start date");
+  }
+
+  const day = Number(generationDay);
+
+  if (!Number.isInteger(day) || day < 1 || day > 28) {
+    throw new Error("Generation day must be a day between 1 and 28");
+  }
+
+  await db
+    .update(subscriptions)
+    .set({ startDate, generationDay: day })
+    .where(eq(subscriptions.ownerId, 1));
+
+  revalidatePath("/dashboard");
+}
+
 export async function updateFamilySettings(formData: FormData) {
   const familyName = formData.get("familyName");
   const photoUrl = formData.get("photoUrl");
