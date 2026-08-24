@@ -53,6 +53,10 @@ export default async function PaymentPage({ params }: Props) {
     (payment) => payment.periodStart === periodStart,
   );
 
+  const pastPayments = member.payments
+    .filter((past) => past.periodStart !== periodStart)
+    .sort((a, b) => b.periodStart.localeCompare(a.periodStart));
+
   const isPaid = payment?.status === "paid";
 
   return (
@@ -196,6 +200,55 @@ export default async function PaymentPage({ params }: Props) {
               Your payment for this period hasn&apos;t been generated yet. Check
               back later.
             </p>
+          </Card>
+        )}
+
+        {/* Past payments */}
+        {pastPayments.length > 0 && (
+          <Card className="mt-4 border-white/10 bg-white/[0.04] p-5 shadow-none">
+            <p className="text-xs font-medium uppercase tracking-[0.16em] text-white/35">
+              Past payments
+            </p>
+
+            <ul className="mt-2 divide-y divide-white/[0.06]">
+              {pastPayments.map((past) => {
+                const pastPaid = past.status === "paid";
+
+                return (
+                  <li
+                    key={past.id}
+                    className="flex items-center justify-between gap-3 py-3"
+                  >
+                    <div className="min-w-0">
+                      <p className="truncate text-sm text-white/70">
+                        {formatPeriod(past.periodStart, past.periodEnd)}
+                      </p>
+
+                      {past.paidAt && (
+                        <p className="mt-0.5 text-xs text-white/30">
+                          Paid{" "}
+                          {past.paidAt.toLocaleDateString(undefined, {
+                            day: "numeric",
+                            month: "short",
+                            year: "numeric",
+                          })}
+                        </p>
+                      )}
+                    </div>
+
+                    <div className="flex shrink-0 items-center gap-3">
+                      <p className="text-sm font-medium tabular-nums text-white/80">
+                        €{(past.amountCents / 100).toFixed(2)}
+                      </p>
+
+                      <Badge tone={pastPaid ? "success" : "pending"}>
+                        {pastPaid ? "Paid" : "Pending"}
+                      </Badge>
+                    </div>
+                  </li>
+                );
+              })}
+            </ul>
           </Card>
         )}
 

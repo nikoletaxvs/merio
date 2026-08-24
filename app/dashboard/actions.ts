@@ -1,11 +1,11 @@
 "use server";
 
 import crypto from "crypto";
-import { and, eq } from "drizzle-orm";
+import { and, eq, ne } from "drizzle-orm";
 import { headers } from "next/headers";
 import { revalidatePath } from "next/cache";
 import { db } from "@/db";
-import { members, subscriptions, users } from "@/db/schema";
+import { members, payments, subscriptions, users } from "@/db/schema";
 import { generatePayments } from "./payment-generation";
 import { sendReminderToMember } from "./period-reminders";
 
@@ -72,6 +72,60 @@ export async function createSubscription(formData: FormData) {
     generationDay: Number(generationDay),
   });
 }
+export async function updateMember(
+  memberId: number,
+  formData: FormData,
+): Promise<void> {
+  const name = formData.get("name");
+  const email = formData.get("email");
+
+  if (typeof name !== "string" || typeof email !== "string") {
+    throw new Error("Invalid form data");
+  }
+
+  if (name.trim() === "" || email.trim() === "") {
+    throw new Error("Name and email are required");
+  }
+
+  const member = await db.query.members.findFirst({
+    where: eq(members.id, memberId),
+    with: { user: true },
+  });
+
+  if (!member) {
+    throw new Error("Member not found");
+  }
+
+  const normalizedEmail = email.trim().toLowerCase();
+
+  if (normalizedEmail !== member.user.email) {
+    const conflicting = await db.query.users.findFirst({
+      where: and(
+        eq(users.email, normalizedEmail),
+        ne(users.id, member.userId),
+      ),
+    });
+
+    if (conflicting) {
+      throw new Error("Another user already uses this email");
+    }
+  }
+
+  await db
+    .update(users)
+    .set({ name: name.trim(), email: normalizedEmail })
+    .where(eq(users.id, member.userId));
+
+  revalidatePath("/dashboard");
+}
+
+export async function deleteMember(memberId: number): Promise<void> {
+  await db.delete(payments).where(eq(payments.memberId, memberId));
+  await db.delete(members).where(eq(members.id, memberId));
+
+  revalidatePath("/dashboard");
+}
+
 export async function addMember(formData: FormData) {
   const name = formData.get("name");
   const email = formData.get("email");

@@ -22,6 +22,24 @@ export function getPeriod(
   date: Date,
   startDate: string,
 ): { start: string; end: string } {
+  const n = periodIndex(date, startDate);
+
+  return {
+    start: addMonths(startDate, n),
+    end: addMonths(startDate, n + 1),
+  };
+}
+
+export function getNextPeriodStart(
+  startDate: string,
+  today: Date = new Date(),
+): string {
+  const n = periodIndex(today, startDate);
+
+  return addMonths(startDate, n + 1);
+}
+
+function periodIndex(date: Date, startDate: string): number {
   const start = parseDate(startDate);
   const startDay = start.getDate();
 
@@ -33,16 +51,11 @@ export function getPeriod(
     n -= 1;
   }
 
-  let periodStart = addMonths(startDate, n);
-
-  if (date < parseDate(periodStart)) {
+  if (date < parseDate(addMonths(startDate, n))) {
     n -= 1;
-    periodStart = addMonths(startDate, n);
   }
 
-  const periodEnd = addMonths(startDate, n + 1);
-
-  return { start: periodStart, end: periodEnd };
+  return n;
 }
 
 export function getCurrentPeriod(startDate: string, today: Date = new Date()) {
