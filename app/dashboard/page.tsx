@@ -5,10 +5,13 @@ import { Badge, Button, Card, MerioMark } from "@/components/ui";
 import {
   activateAllPayments,
   addMember,
+  deleteMember,
   remindMember,
   updateFamilySettings,
+  updateMember,
 } from "./actions";
-import CopyPaymentLinkButton from "./CopyPaymentLink";
+import MemberRow from "./MemberRow";
+import PeriodCountdown from "./PeriodCountdown";
 import { formatPeriod, getCurrentPeriod } from "@/lib/periods";
 
 export const dynamic = "force-dynamic";
@@ -125,6 +128,9 @@ export default async function DashboardPage() {
           </div>
         </Card>
 
+        {/* Next period countdown */}
+        <PeriodCountdown startDate={subscription.startDate} />
+
         {/* Members */}
         <section className="mt-10">
           <div className="flex items-end justify-between gap-4">
@@ -153,66 +159,31 @@ export default async function DashboardPage() {
           <div className="mt-4 overflow-hidden rounded-2xl border border-white/10 bg-white/[0.03]">
             {members.length > 0 ? (
               <div className="divide-y divide-white/[0.07]">
-                {members.map((member) => {
-                  const isPaid = member.payment?.status === "paid";
-
-                  return (
-                    <div
-                      key={member.id}
-                      className="group flex flex-col gap-4 p-4 transition-colors hover:bg-white/[0.03] sm:flex-row sm:items-center sm:justify-between sm:p-5"
-                    >
-                      <div className="flex min-w-0 items-center gap-3">
-                        <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-brand/15 text-sm font-bold text-brand ring-1 ring-brand/10">
-                          {initials(member.user.name)}
-                        </span>
-
-                        <div className="min-w-0">
-                          <div className="flex min-w-0 items-center gap-2">
-                            <p className="truncate font-medium text-white">
-                              {member.user.name}
-                            </p>
-
-                            <CopyPaymentLinkButton token={member.token} />
-                          </div>
-
-                          <p className="mt-0.5 truncate text-sm text-white/40">
-                            {member.user.email}
-                          </p>
-                        </div>
-                      </div>
-
-                      <div className="flex items-center justify-between gap-4 pl-13 sm:justify-end sm:pl-0">
-                        {member.payment ? (
-                          <>
-                            <p className="font-semibold tabular-nums">
-                              €{(member.payment.amountCents / 100).toFixed(2)}
-                            </p>
-
-                            {!isPaid && (
-                              <form action={remindMember.bind(null, member.id)}>
-                                <Button
-                                  type="submit"
-                                  variant="secondary"
-                                  className="!px-3 !py-1.5 text-xs"
-                                >
-                                  Remind
-                                </Button>
-                              </form>
-                            )}
-
-                            <Badge tone={isPaid ? "success" : "pending"}>
-                              {isPaid ? "Paid" : "Pending"}
-                            </Badge>
-                          </>
-                        ) : (
-                          <p className="text-sm text-white/35">
-                            No payment yet
-                          </p>
-                        )}
-                      </div>
-                    </div>
-                  );
-                })}
+                {members.map((member) => (
+                  <MemberRow
+                    key={member.id}
+                    currentPeriodStart={periodStart}
+                    member={{
+                      id: member.id,
+                      token: member.token,
+                      user: {
+                        name: member.user.name,
+                        email: member.user.email,
+                      },
+                      payments: member.payments.map((payment) => ({
+                        id: payment.id,
+                        amountCents: payment.amountCents,
+                        periodStart: payment.periodStart,
+                        periodEnd: payment.periodEnd,
+                        status: payment.status,
+                        paidAt: payment.paidAt,
+                      })),
+                    }}
+                    remindAction={remindMember}
+                    updateAction={updateMember}
+                    deleteAction={deleteMember}
+                  />
+                ))}
               </div>
             ) : (
               <div className="px-6 py-12 text-center">
@@ -344,13 +315,4 @@ export default async function DashboardPage() {
       </div>
     </main>
   );
-}
-
-function initials(name: string) {
-  return name
-    .split(" ")
-    .filter(Boolean)
-    .slice(0, 2)
-    .map((part) => part[0]?.toUpperCase())
-    .join("");
 }
