@@ -98,3 +98,58 @@ export function Badge({
     </span>
   );
 }
+
+export function Label({
+  children,
+  htmlFor,
+  className = "",
+}: {
+  children: ReactNode;
+  htmlFor?: string;
+  className?: string;
+}) {
+  return (
+    <label
+      htmlFor={htmlFor}
+      className={`block text-sm font-medium text-white/80 ${className}`}
+    >
+      {children}
+    </label>
+  );
+}
+
+const inputBase =
+  "mt-2 w-full rounded-xl border border-white/10 bg-white/[0.05] px-3.5 py-2.5 text-sm text-white outline-none transition placeholder:text-white/25 hover:border-white/15 focus:border-brand/60 focus:bg-white/[0.07] focus:ring-2 focus:ring-brand/10";
+
+export function Input({
+  className = "",
+  ...props
+}: ComponentProps<"input">) {
+  return <input className={`${inputBase} ${className}`} {...props} />;
+}
+
+export function SectionHeading({
+  title,
+  description,
+  action,
+}: {
+  title: string;
+  description?: string;
+  action?: ReactNode;
+}) {
+  return (
+    <div className="flex items-end justify-between gap-4">
+      <div>
+        <h2 className="text-lg font-bold tracking-tight sm:text-xl">
+          {title}
+        </h2>
+
+        {description && (
+          <p className="mt-1 text-sm text-white/40">{description}</p>
+        )}
+      </div>
+
+      {action}
+    </div>
+  );
+}

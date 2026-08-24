@@ -1,8 +1,8 @@
 "use client";
 
 import { useState, useTransition } from "react";
-import { Badge } from "@/components/ui";
-import { formatPeriod } from "@/lib/periods";
+import { Badge, Input, Label } from "@/components/ui";
+import { formatDateLong, formatPeriod } from "@/lib/periods";
 import CopyPaymentLinkButton from "./CopyPaymentLink";
 
 export type MemberPayment = {
@@ -13,6 +13,18 @@ export type MemberPayment = {
   status: string;
   paidAt: Date | null;
 };
+
+const AVATAR_STYLES = [
+  "bg-violet-500/15 text-violet-300 ring-violet-400/20",
+  "bg-sky-500/15 text-sky-300 ring-sky-400/20",
+  "bg-emerald-500/15 text-emerald-300 ring-emerald-400/20",
+  "bg-amber-500/15 text-amber-300 ring-amber-400/20",
+  "bg-rose-500/15 text-rose-300 ring-rose-400/20",
+];
+
+function hash(value: string) {
+  return [...value].reduce((acc, char) => acc + char.charCodeAt(0), 0);
+}
 
 export default function MemberRow({
   member,
@@ -72,7 +84,13 @@ export default function MemberRow({
         className="flex w-full items-center justify-between gap-4 p-4 text-left focus:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-brand sm:p-5"
       >
         <div className="flex min-w-0 items-center gap-3">
-          <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-brand/15 text-sm font-bold text-brand ring-1 ring-brand/10">
+          <span
+            className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-full text-sm font-bold ring-1 ${
+              AVATAR_STYLES[
+                Math.abs(hash(member.user.name)) % AVATAR_STYLES.length
+              ]
+            }`}
+          >
             {initials(member.user.name)}
           </span>
 
@@ -171,6 +189,23 @@ export default function MemberRow({
                 />
 
                 <PillButton onClick={() => setEditing((value) => !value)}>
+                  <svg viewBox="0 0 20 20" fill="none" aria-hidden="true" className="h-3 w-3">
+                    {editing ? (
+                      <path
+                        d="m5 5 10 10M15 5 5 15"
+                        stroke="currentColor"
+                        strokeWidth="1.8"
+                        strokeLinecap="round"
+                      />
+                    ) : (
+                      <path
+                        d="M12.8 3.7l3.5 3.5L6.5 17H3v-3.5l9.8-9.8Z"
+                        stroke="currentColor"
+                        strokeWidth="1.5"
+                        strokeLinejoin="round"
+                      />
+                    )}
+                  </svg>
                   {editing ? "Close" : "Edit"}
                 </PillButton>
 
@@ -196,6 +231,15 @@ export default function MemberRow({
                   </>
                 ) : (
                   <PillButton onClick={() => setConfirmingDelete(true)}>
+                    <svg viewBox="0 0 20 20" fill="none" aria-hidden="true" className="h-3 w-3">
+                      <path
+                        d="M4 6h12M8 6V4.5A1.5 1.5 0 0 1 9.5 3h1A1.5 1.5 0 0 1 12 4.5V6m2.5 0-.7 9.1a2 2 0 0 1-2 1.9H8.2a2 2 0 0 1-2-1.9L5.5 6"
+                        stroke="currentColor"
+                        strokeWidth="1.4"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                      />
+                    </svg>
                     Remove
                   </PillButton>
                 )}
@@ -209,37 +253,29 @@ export default function MemberRow({
                 className="grid gap-3 rounded-lg border border-white/[0.07] bg-black/20 p-4 sm:grid-cols-2"
               >
                 <div>
-                  <label
-                    htmlFor={`name-${member.id}`}
-                    className="block text-xs font-medium text-white/60"
-                  >
+                  <Label htmlFor={`name-${member.id}`}>
                     Name
-                  </label>
+                  </Label>
 
-                  <input
+                  <Input
                     id={`name-${member.id}`}
                     name="name"
                     required
                     defaultValue={member.user.name}
-                    className="mt-1.5 w-full rounded-xl border border-white/10 bg-white/[0.05] px-3 py-2 text-sm text-white outline-none transition placeholder:text-white/25 focus:border-brand/60 focus:ring-2 focus:ring-brand/10"
                   />
                 </div>
 
                 <div>
-                  <label
-                    htmlFor={`email-${member.id}`}
-                    className="block text-xs font-medium text-white/60"
-                  >
+                  <Label htmlFor={`email-${member.id}`}>
                     Email
-                  </label>
+                  </Label>
 
-                  <input
+                  <Input
                     id={`email-${member.id}`}
                     name="email"
                     type="email"
                     required
                     defaultValue={member.user.email}
-                    className="mt-1.5 w-full rounded-xl border border-white/10 bg-white/[0.05] px-3 py-2 text-sm text-white outline-none transition placeholder:text-white/25 focus:border-brand/60 focus:ring-2 focus:ring-brand/10"
                   />
                 </div>
 
@@ -291,12 +327,7 @@ export default function MemberRow({
 
                           {payment.paidAt && (
                             <p className="mt-0.5 text-xs text-white/30">
-                              Paid{" "}
-                              {payment.paidAt.toLocaleDateString(undefined, {
-                                day: "numeric",
-                                month: "short",
-                                year: "numeric",
-                              })}
+                              Paid {formatDateLong(payment.paidAt)}
                             </p>
                           )}
                         </div>
@@ -329,6 +360,15 @@ function SubmitRemindButton() {
       type="submit"
       className="inline-flex items-center gap-1.5 rounded-full border border-white/10 bg-white/[0.06] px-3.5 py-1.5 text-xs font-semibold text-white transition hover:bg-white/[0.1] active:scale-[0.99]"
     >
+      <svg viewBox="0 0 20 20" fill="none" aria-hidden="true" className="h-3 w-3">
+        <path
+          d="M10 3a4.5 4.5 0 0 0-4.5 4.5c0 3.6-1.5 5-1.5 5h12s-1.5-1.4-1.5-5A4.5 4.5 0 0 0 10 3Zm-1.8 12a2 2 0 0 0 3.6 0"
+          stroke="currentColor"
+          strokeWidth="1.4"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+        />
+      </svg>
       Send reminder
     </button>
   );

@@ -1,18 +1,28 @@
 import { eq } from "drizzle-orm";
 import { db } from "@/db";
 import { subscriptions } from "@/db/schema";
-import { Badge, Button, Card, MerioMark } from "@/components/ui";
+import {
+  Badge,
+  Button,
+  Card,
+  Input,
+  Label,
+  MerioMark,
+  SectionHeading,
+} from "@/components/ui";
 import {
   activateAllPayments,
   addMember,
   deleteMember,
   remindMember,
+  updateBillingPeriod,
   updateFamilySettings,
   updateMember,
 } from "./actions";
 import MemberRow from "./MemberRow";
+import OverviewCard from "./OverviewCard";
 import PeriodCountdown from "./PeriodCountdown";
-import { formatPeriod, getCurrentPeriod } from "@/lib/periods";
+import { getCurrentPeriod } from "@/lib/periods";
 
 export const dynamic = "force-dynamic";
 
@@ -64,26 +74,25 @@ export default async function DashboardPage() {
     (member) => member.payment?.status === "paid",
   ).length;
 
-  const totalAmount = subscription.amountCents / 100;
   const paidPercentage =
     members.length > 0 ? Math.round((paidCount / members.length) * 100) : 0;
 
   return (
-    <main className="min-h-screen w-full bg-black text-white">
+    <main className="page-glow min-h-screen w-full bg-black text-white">
       <div className="mx-auto w-full max-w-4xl px-5 py-8 sm:px-6 sm:py-10">
         {/* Header */}
-        <header className="flex items-center justify-between gap-4">
-          <div className="flex min-w-0 items-center gap-3">
+        <header>
+          <div className="flex items-center gap-3.5">
             {subscription.photoUrl ? (
               // eslint-disable-next-line @next/next/no-img-element
               <img
                 src={subscription.photoUrl}
                 alt=""
-                className="h-10 w-10 shrink-0 rounded-xl object-cover ring-1 ring-white/10"
+                className="h-12 w-12 shrink-0 rounded-2xl object-cover ring-1 ring-white/10"
               />
             ) : (
-              <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-brand">
-                <MerioMark className="h-6 w-6 text-black" />
+              <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-brand shadow-lg shadow-brand/25">
+                <MerioMark className="h-7 w-7 text-black" />
               </div>
             )}
 
@@ -92,71 +101,74 @@ export default async function DashboardPage() {
                 {subscription.familyName ?? subscription.name}
               </h1>
               <p className="mt-0.5 text-sm text-white/45">
-                {paidCount} of {members.length} members paid this period
+                Spotify family subscription
               </p>
             </div>
+
+            <Badge
+              tone={paidCount === members.length ? "success" : "neutral"}
+              className="ml-auto shrink-0 tabular-nums"
+            >
+              {paidCount}/{members.length} paid
+            </Badge>
           </div>
 
-          <Badge tone={paidCount === members.length ? "success" : "neutral"}>
-            {paidPercentage}%
-          </Badge>
+          <div className="mt-6 flex items-center gap-4">
+            <div className="h-1.5 flex-1 overflow-hidden rounded-full bg-white/[0.07]">
+              <div
+                className={`h-full rounded-full transition-all duration-500 ${
+                  paidCount === members.length && members.length > 0
+                    ? "bg-emerald-400"
+                    : "bg-gradient-to-r from-brand to-brand-hover"
+                }`}
+                style={{ width: `${paidPercentage}%` }}
+              />
+            </div>
+
+            <span className="shrink-0 text-sm font-semibold tabular-nums text-white/70">
+              {paidPercentage}%
+            </span>
+          </div>
         </header>
 
         {/* Overview */}
-        <Card className="mt-8 overflow-hidden border-white/10 bg-white/[0.04] shadow-none">
-          <div className="grid divide-y divide-white/[0.08] sm:grid-cols-[1.2fr_1fr_1fr] sm:divide-x sm:divide-y-0">
-            <div className="p-5 sm:p-6">
-              <p className="text-sm text-white/45">Monthly amount</p>
-              <p className="mt-1 text-3xl font-bold tracking-tight">
-                €{totalAmount.toFixed(2)}
-              </p>
-            </div>
-
-            <div className="p-5 sm:p-6">
-              <p className="text-sm text-white/45">Payment generated</p>
-              <p className="mt-1 font-semibold">
-                Day {subscription.generationDay}
-              </p>
-            </div>
-
-            <div className="p-5 sm:p-6">
-              <p className="text-sm text-white/45">Billing period</p>
-              <p className="mt-1 font-semibold">
-                {formatPeriod(periodStart, periodEnd)}
-              </p>
-            </div>
-          </div>
-        </Card>
+        <OverviewCard
+          amountCents={subscription.amountCents}
+          generationDay={subscription.generationDay}
+          periodStart={periodStart}
+          periodEnd={periodEnd}
+          startDate={subscription.startDate}
+          saveAction={updateBillingPeriod}
+        />
 
         {/* Next period countdown */}
-        <PeriodCountdown startDate={subscription.startDate} />
+        <PeriodCountdown generationDay={subscription.generationDay} />
 
         {/* Members */}
         <section className="mt-10">
-          <div className="flex items-end justify-between gap-4">
-            <div>
-              <h2 className="text-lg font-bold tracking-tight sm:text-xl">
-                Members
-              </h2>
-              <p className="mt-1 text-sm text-white/40">
-                Track this period&apos;s payments.
-              </p>
-            </div>
+          <SectionHeading
+            title="Members"
+            description="Track this period's payments."
+            action={
+              <div className="flex items-center gap-3">
+                <span className="hidden text-sm text-white/40 sm:block">
+                  {members.length} {members.length === 1 ? "member" : "members"}
+                </span>
 
-            <div className="flex items-center gap-3">
-              <span className="text-sm text-white/40">
-                {members.length} {members.length === 1 ? "member" : "members"}
-              </span>
+                <form action={activateAllPayments}>
+                  <Button
+                    type="submit"
+                    variant="secondary"
+                    className="!px-4 !py-2 text-xs"
+                  >
+                    Activate all
+                  </Button>
+                </form>
+              </div>
+            }
+          />
 
-              <form action={activateAllPayments}>
-                <Button type="submit" variant="secondary" className="!px-4 !py-2 text-xs">
-                  Activate all
-                </Button>
-              </form>
-            </div>
-          </div>
-
-          <div className="mt-4 overflow-hidden rounded-2xl border border-white/10 bg-white/[0.03]">
+          <div className="mt-4 overflow-hidden rounded-2xl border border-white/[0.08] bg-white/[0.02] shadow-lg shadow-black/20 ring-1 ring-inset ring-white/[0.02]">
             {members.length > 0 ? (
               <div className="divide-y divide-white/[0.07]">
                 {members.map((member) => (
@@ -200,118 +212,83 @@ export default async function DashboardPage() {
           </div>
         </section>
 
-        {/* Add member */}
-        <section className="mt-10 pb-10">
-          <div>
-            <h2 className="text-lg font-bold tracking-tight sm:text-xl">
-              Add member
-            </h2>
-            <p className="mt-1 text-sm text-white/40">
-              Add someone to your subscription.
-            </p>
-          </div>
+        {/* Add member & Family settings */}
+        <div className="mt-10 grid gap-6 pb-10 lg:grid-cols-2 lg:items-start">
+          <section>
+            <SectionHeading
+              title="Add member"
+              description="Add someone to your subscription."
+            />
 
-          <Card className="mt-4 border-white/10 bg-white/[0.04] shadow-none">
-            <form action={addMember} className="grid gap-5 sm:grid-cols-2">
-              <div>
-                <label
-                  htmlFor="name"
-                  className="block text-sm font-medium text-white/80"
-                >
-                  Name
-                </label>
+            <Card className="mt-4 border-white/10 bg-white/[0.04] shadow-none">
+              <form action={addMember} className="grid gap-5">
+                <div>
+                  <Label htmlFor="name">Name</Label>
 
-                <input
-                  id="name"
-                  name="name"
-                  required
-                  placeholder="George"
-                  className="mt-2 w-full rounded-xl border border-white/10 bg-white/[0.05] px-3.5 py-2.5 text-sm text-white outline-none transition placeholder:text-white/25 hover:border-white/15 focus:border-brand/60 focus:bg-white/[0.07] focus:ring-2 focus:ring-brand/10"
-                />
-              </div>
+                  <Input
+                    id="name"
+                    name="name"
+                    required
+                    placeholder="George"
+                  />
+                </div>
 
-              <div>
-                <label
-                  htmlFor="email"
-                  className="block text-sm font-medium text-white/80"
-                >
-                  Email
-                </label>
+                <div>
+                  <Label htmlFor="email">Email</Label>
 
-                <input
-                  id="email"
-                  name="email"
-                  type="email"
-                  required
-                  placeholder="george@example.com"
-                  className="mt-2 w-full rounded-xl border border-white/10 bg-white/[0.05] px-3.5 py-2.5 text-sm text-white outline-none transition placeholder:text-white/25 hover:border-white/15 focus:border-brand/60 focus:bg-white/[0.07] focus:ring-2 focus:ring-brand/10"
-                />
-              </div>
+                  <Input
+                    id="email"
+                    name="email"
+                    type="email"
+                    required
+                    placeholder="george@example.com"
+                  />
+                </div>
 
-              <div className="sm:col-span-2">
                 <Button type="submit" className="w-full sm:w-auto">
                   Add member
                 </Button>
-              </div>
-            </form>
-          </Card>
-        </section>
+              </form>
+            </Card>
+          </section>
 
-        {/* Family settings */}
-        <section className="mt-10 pb-10">
-          <div>
-            <h2 className="text-lg font-bold tracking-tight sm:text-xl">
-              Family settings
-            </h2>
-            <p className="mt-1 text-sm text-white/40">
-              Customize the name and photo shown to your members.
-            </p>
-          </div>
+          <section>
+            <SectionHeading
+              title="Family settings"
+              description="Customize the name and photo shown to your members."
+            />
 
-          <Card className="mt-4 border-white/10 bg-white/[0.04] shadow-none">
-            <form action={updateFamilySettings} className="grid gap-5 sm:grid-cols-2">
-              <div>
-                <label
-                  htmlFor="familyName"
-                  className="block text-sm font-medium text-white/80"
-                >
-                  Family name
-                </label>
+            <Card className="mt-4 border-white/10 bg-white/[0.04] shadow-none">
+              <form action={updateFamilySettings} className="grid gap-5">
+                <div>
+                  <Label htmlFor="familyName">Family name</Label>
 
-                <input
-                  id="familyName"
-                  name="familyName"
-                  defaultValue={subscription.familyName ?? ""}
-                  placeholder="e.g. The Smiths"
-                  className="mt-2 w-full rounded-xl border border-white/10 bg-white/[0.05] px-3.5 py-2.5 text-sm text-white outline-none transition placeholder:text-white/25 hover:border-white/15 focus:border-brand/60 focus:bg-white/[0.07] focus:ring-2 focus:ring-brand/10"
-                />
-              </div>
+                  <Input
+                    id="familyName"
+                    name="familyName"
+                    defaultValue={subscription.familyName ?? ""}
+                    placeholder="e.g. The Smiths"
+                  />
+                </div>
 
-              <div>
-                <label
-                  htmlFor="photoUrl"
-                  className="block text-sm font-medium text-white/80"
-                >
-                  Photo URL
-                </label>
+                <div>
+                  <Label htmlFor="photoUrl">Photo URL</Label>
 
-                <input
-                  id="photoUrl"
-                  name="photoUrl"
-                  defaultValue={subscription.photoUrl ?? ""}
-                  placeholder="https://example.com/photo.jpg"
-                  className="mt-2 w-full rounded-xl border border-white/10 bg-white/[0.05] px-3.5 py-2.5 text-sm text-white outline-none transition placeholder:text-white/25 hover:border-white/15 focus:border-brand/60 focus:bg-white/[0.07] focus:ring-2 focus:ring-brand/10"
-                />
-              </div>
+                  <Input
+                    id="photoUrl"
+                    name="photoUrl"
+                    defaultValue={subscription.photoUrl ?? ""}
+                    placeholder="https://example.com/photo.jpg"
+                  />
+                </div>
 
-              <div className="sm:col-span-2">
                 <Button type="submit" className="w-full sm:w-auto">
                   Save
                 </Button>
-              </div>
-            </form>
-          </Card>
-        </section>
+              </form>
+            </Card>
+          </section>
+        </div>
       </div>
     </main>
   );

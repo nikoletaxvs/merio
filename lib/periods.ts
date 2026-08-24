@@ -62,15 +62,36 @@ export function getCurrentPeriod(startDate: string, today: Date = new Date()) {
   return getPeriod(today, startDate);
 }
 
+const MONTHS_SHORT = [
+  "Jan",
+  "Feb",
+  "Mar",
+  "Apr",
+  "May",
+  "Jun",
+  "Jul",
+  "Aug",
+  "Sep",
+  "Oct",
+  "Nov",
+  "Dec",
+];
+
+function formatDate(date: Date, withYear: boolean): string {
+  const day = date.getDate();
+  const month = MONTHS_SHORT[date.getMonth()];
+
+  return withYear ? `${day} ${month} ${date.getFullYear()}` : `${day} ${month}`;
+}
+
 export function formatPeriod(start: string, end: string) {
-  const from = parseDate(start).toLocaleDateString(undefined, {
-    day: "numeric",
-    month: "short",
-  });
-  const to = parseDate(end).toLocaleDateString(undefined, {
-    day: "numeric",
-    month: "short",
-    year: "numeric",
-  });
-  return `${from} – ${to}`;
+  const fromDate = parseDate(start);
+  const toDate = parseDate(end);
+  const sameYear = fromDate.getFullYear() === toDate.getFullYear();
+
+  return `${formatDate(fromDate, false)} – ${formatDate(toDate, !sameYear)}`;
+}
+
+export function formatDateLong(date: Date) {
+  return `${date.getDate()} ${MONTHS_SHORT[date.getMonth()]} ${date.getFullYear()}`;
 }
