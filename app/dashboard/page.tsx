@@ -1,32 +1,33 @@
 import { eq } from "drizzle-orm";
 import { db } from "@/db";
 import { subscriptions } from "@/db/schema";
-import {
-  Badge,
-  Button,
-  Card,
-  Input,
-  Label,
-  MerioMark,
-  SectionHeading,
-} from "@/components/ui";
+import { Badge, Card, MerioMark, SectionHeading } from "@/components/ui";
 import {
   activateAllPayments,
   addMember,
   deleteMember,
+  logout,
   remindMember,
   updateBillingPeriod,
   updateFamilySettings,
   updateMember,
 } from "./actions";
+import {
+  ActivateAllButton,
+  AddMemberForm,
+  FamilySettingsForm,
+} from "./forms";
 import MemberRow from "./MemberRow";
 import OverviewCard from "./OverviewCard";
 import PeriodCountdown from "./PeriodCountdown";
 import { getCurrentPeriod } from "@/lib/periods";
+import { requireOwner } from "@/lib/auth";
 
 export const dynamic = "force-dynamic";
 
 export default async function DashboardPage() {
+  await requireOwner();
+
   const subscription = await db.query.subscriptions.findFirst({
     where: eq(subscriptions.ownerId, 1),
     with: {
@@ -111,6 +112,30 @@ export default async function DashboardPage() {
             >
               {paidCount}/{members.length} paid
             </Badge>
+
+            <form action={logout} className="shrink-0">
+              <button
+                type="submit"
+                aria-label="Sign out"
+                title="Sign out"
+                className="flex h-9 w-9 items-center justify-center rounded-full border border-white/10 bg-white/[0.06] text-white/50 transition hover:bg-white/[0.1] hover:text-white"
+              >
+                <svg
+                  viewBox="0 0 20 20"
+                  fill="none"
+                  aria-hidden="true"
+                  className="h-4 w-4"
+                >
+                  <path
+                    d="M12.5 6.5V5A1.5 1.5 0 0 0 11 3.5H5A1.5 1.5 0 0 0 3.5 5v10A1.5 1.5 0 0 0 5 16.5h6a1.5 1.5 0 0 0 1.5-1.5v-1.5m2-6.5L18 10l-3 3.5m3-3.5H7.5"
+                    stroke="currentColor"
+                    strokeWidth="1.5"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  />
+                </svg>
+              </button>
+            </form>
           </div>
 
           <div className="mt-6 flex items-center gap-4">
@@ -155,15 +180,7 @@ export default async function DashboardPage() {
                   {members.length} {members.length === 1 ? "member" : "members"}
                 </span>
 
-                <form action={activateAllPayments}>
-                  <Button
-                    type="submit"
-                    variant="secondary"
-                    className="!px-4 !py-2 text-xs"
-                  >
-                    Activate all
-                  </Button>
-                </form>
+                <ActivateAllButton action={activateAllPayments} />
               </div>
             }
           />
@@ -221,34 +238,7 @@ export default async function DashboardPage() {
             />
 
             <Card className="mt-4 border-white/10 bg-white/[0.04] shadow-none">
-              <form action={addMember} className="grid gap-5">
-                <div>
-                  <Label htmlFor="name">Name</Label>
-
-                  <Input
-                    id="name"
-                    name="name"
-                    required
-                    placeholder="George"
-                  />
-                </div>
-
-                <div>
-                  <Label htmlFor="email">Email</Label>
-
-                  <Input
-                    id="email"
-                    name="email"
-                    type="email"
-                    required
-                    placeholder="george@example.com"
-                  />
-                </div>
-
-                <Button type="submit" className="w-full sm:w-auto">
-                  Add member
-                </Button>
-              </form>
+              <AddMemberForm action={addMember} />
             </Card>
           </section>
 
@@ -259,33 +249,11 @@ export default async function DashboardPage() {
             />
 
             <Card className="mt-4 border-white/10 bg-white/[0.04] shadow-none">
-              <form action={updateFamilySettings} className="grid gap-5">
-                <div>
-                  <Label htmlFor="familyName">Family name</Label>
-
-                  <Input
-                    id="familyName"
-                    name="familyName"
-                    defaultValue={subscription.familyName ?? ""}
-                    placeholder="e.g. The Smiths"
-                  />
-                </div>
-
-                <div>
-                  <Label htmlFor="photoUrl">Photo URL</Label>
-
-                  <Input
-                    id="photoUrl"
-                    name="photoUrl"
-                    defaultValue={subscription.photoUrl ?? ""}
-                    placeholder="https://example.com/photo.jpg"
-                  />
-                </div>
-
-                <Button type="submit" className="w-full sm:w-auto">
-                  Save
-                </Button>
-              </form>
+              <FamilySettingsForm
+                action={updateFamilySettings}
+                familyName={subscription.familyName ?? ""}
+                photoUrl={subscription.photoUrl ?? ""}
+              />
             </Card>
           </section>
         </div>
