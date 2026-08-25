@@ -153,3 +153,14 @@ export function SectionHeading({
     </div>
   );
 }
+
+export function FormError({ children }: { children: ReactNode }) {
+  return (
+    <p
+      role="alert"
+      className="rounded-lg bg-red-500/10 px-3 py-2 text-sm text-red-300 ring-1 ring-red-500/20"
+    >
+      {children}
+    </p>
+  );
+}

@@ -4,48 +4,203 @@ import crypto from "crypto";
 import { and, eq, ne } from "drizzle-orm";
 import { headers } from "next/headers";
 import { revalidatePath } from "next/cache";
+import { redirect } from "next/navigation";
 import { db } from "@/db";
 import { members, payments, subscriptions, users } from "@/db/schema";
+import { endSession, isAuthenticated } from "@/lib/auth";
 import { generatePayments } from "./payment-generation";
 import { sendReminderToMember } from "./period-reminders";
 
-export async function activateAllPayments() {
-  await generatePayments();
-  revalidatePath("/dashboard");
+export type ActionState = { error: string } | null;
+
+async function guard(): Promise<ActionState> {
+  if (!(await isAuthenticated())) {
+    return { error: "Your session expired. Please sign in again." };
+  }
+
+  return null;
 }
 
-export async function remindMember(memberId: number) {
-  const headersList = await headers();
-  const host = headersList.get("host") ?? "localhost:3000";
-  const proto = headersList.get("x-forwarded-proto") ?? "http";
-
-  await sendReminderToMember(memberId, `${proto}://${host}`);
-  revalidatePath("/dashboard");
+export async function logout(): Promise<void> {
+  await endSession();
+  redirect("/login");
 }
 
-export async function updateBillingPeriod(formData: FormData): Promise<void> {
+export async function activateAllPayments(
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  _prev: ActionState,
+): Promise<ActionState> {
+  const denied = await guard();
+
+  if (denied) {
+    return denied;
+  }
+
+  try {
+    await generatePayments();
+    revalidatePath("/dashboard");
+
+    return null;
+  } catch {
+    return { error: "Couldn't generate payments. Try again." };
+  }
+}
+
+export async function remindMember(
+  memberId: number,
+): Promise<{ error?: string }> {
+  if (!(await isAuthenticated())) {
+    return { error: "Your session expired. Please sign in again." };
+  }
+
+  try {
+    const headersList = await headers();
+    const host = headersList.get("host") ?? "localhost:3000";
+    const proto = headersList.get("x-forwarded-proto") ?? "http";
+
+    const result = await sendReminderToMember(memberId, `${proto}://${host}`);
+    revalidatePath("/dashboard");
+
+    if (!result.sent) {
+      return { error: "This member already marked the payment as paid." };
+    }
+
+    return {};
+  } catch {
+    return { error: "Reminder email couldn't be sent. Try again later." };
+  }
+}
+
+export async function deleteMember(
+  memberId: number,
+): Promise<{ error?: string }> {
+  if (!(await isAuthenticated())) {
+    return { error: "Your session expired. Please sign in again." };
+  }
+
+  try {
+    await db.delete(payments).where(eq(payments.memberId, memberId));
+    await db.delete(members).where(eq(members.id, memberId));
+
+    revalidatePath("/dashboard");
+
+    return {};
+  } catch {
+    return { error: "Member couldn't be removed. Try again." };
+  }
+}
+
+export async function updateMember(
+  _prev: ActionState,
+  formData: FormData,
+): Promise<ActionState> {
+  const denied = await guard();
+
+  if (denied) {
+    return denied;
+  }
+
+  const memberId = Number(formData.get("memberId"));
+  const name = formData.get("name");
+  const email = formData.get("email");
+
+  if (!Number.isInteger(memberId)) {
+    return { error: "Invalid member." };
+  }
+
+  if (typeof name !== "string" || typeof email !== "string") {
+    return { error: "Invalid form data." };
+  }
+
+  if (name.trim() === "" || email.trim() === "") {
+    return { error: "Name and email are required." };
+  }
+
+  try {
+    const member = await db.query.members.findFirst({
+      where: eq(members.id, memberId),
+      with: { user: true },
+    });
+
+    if (!member) {
+      return { error: "Member not found." };
+    }
+
+    const normalizedEmail = email.trim().toLowerCase();
+
+    if (normalizedEmail !== member.user.email) {
+      const conflicting = await db.query.users.findFirst({
+        where: and(
+          eq(users.email, normalizedEmail),
+          ne(users.id, member.userId),
+        ),
+      });
+
+      if (conflicting) {
+        return { error: "Another user already uses this email." };
+      }
+    }
+
+    await db
+      .update(users)
+      .set({ name: name.trim(), email: normalizedEmail })
+      .where(eq(users.id, member.userId));
+
+    revalidatePath("/dashboard");
+
+    return null;
+  } catch {
+    return { error: "Changes couldn't be saved. Try again." };
+  }
+}
+
+export async function updateBillingPeriod(
+  _prev: ActionState,
+  formData: FormData,
+): Promise<ActionState> {
+  const denied = await guard();
+
+  if (denied) {
+    return denied;
+  }
+
   const startDate = formData.get("startDate");
   const generationDay = formData.get("generationDay");
 
   if (typeof startDate !== "string" || !/^\d{4}-\d{2}-\d{2}$/.test(startDate)) {
-    throw new Error("Invalid start date");
+    return { error: "Pick a valid start date." };
   }
 
   const day = Number(generationDay);
 
   if (!Number.isInteger(day) || day < 1 || day > 28) {
-    throw new Error("Generation day must be a day between 1 and 28");
+    return { error: "Generation day must be between 1 and 28." };
   }
 
-  await db
-    .update(subscriptions)
-    .set({ startDate, generationDay: day })
-    .where(eq(subscriptions.ownerId, 1));
+  try {
+    await db
+      .update(subscriptions)
+      .set({ startDate, generationDay: day })
+      .where(eq(subscriptions.ownerId, 1));
 
-  revalidatePath("/dashboard");
+    revalidatePath("/dashboard");
+
+    return null;
+  } catch {
+    return { error: "Settings couldn't be saved. Try again." };
+  }
 }
 
-export async function updateFamilySettings(formData: FormData) {
+export async function updateFamilySettings(
+  _prev: ActionState,
+  formData: FormData,
+): Promise<ActionState> {
+  const denied = await guard();
+
+  if (denied) {
+    return denied;
+  }
+
   const familyName = formData.get("familyName");
   const photoUrl = formData.get("photoUrl");
 
@@ -53,25 +208,42 @@ export async function updateFamilySettings(formData: FormData) {
     (typeof familyName !== "string" || familyName.trim() === "") &&
     (typeof photoUrl !== "string" || photoUrl.trim() === "")
   ) {
-    throw new Error("Provide a family name or photo URL");
+    return { error: "Provide a family name or photo URL." };
   }
 
-  await db
-    .update(subscriptions)
-    .set({
-      familyName:
-        typeof familyName === "string" && familyName.trim()
-          ? familyName.trim()
-          : undefined,
-      photoUrl:
-        typeof photoUrl === "string" && photoUrl.trim()
-          ? photoUrl.trim()
-          : undefined,
-    })
-    .where(eq(subscriptions.ownerId, 1));
+  try {
+    await db
+      .update(subscriptions)
+      .set({
+        familyName:
+          typeof familyName === "string" && familyName.trim()
+            ? familyName.trim()
+            : undefined,
+        photoUrl:
+          typeof photoUrl === "string" && photoUrl.trim()
+            ? photoUrl.trim()
+            : undefined,
+      })
+      .where(eq(subscriptions.ownerId, 1));
+
+    revalidatePath("/dashboard");
+
+    return null;
+  } catch {
+    return { error: "Settings couldn't be saved. Try again." };
+  }
 }
 
-export async function createSubscription(formData: FormData) {
+export async function createSubscription(
+  _prev: ActionState,
+  formData: FormData,
+): Promise<ActionState> {
+  const denied = await guard();
+
+  if (denied) {
+    return denied;
+  }
+
   const name = formData.get("name");
   const amountCents = formData.get("amountCents");
   const startDate = formData.get("startDate");
@@ -83,118 +255,96 @@ export async function createSubscription(formData: FormData) {
     typeof startDate !== "string" ||
     typeof generationDay !== "string"
   ) {
-    throw new Error("Invalid form data");
+    return { error: "Invalid form data." };
   }
 
-  await db.insert(subscriptions).values({
-    ownerId: 1,
-    name,
-    amountCents: Number(amountCents),
-    startDate,
-    generationDay: Number(generationDay),
-  });
+  try {
+    await db.insert(subscriptions).values({
+      ownerId: 1,
+      name,
+      amountCents: Number(amountCents),
+      startDate,
+      generationDay: Number(generationDay),
+    });
+
+    revalidatePath("/dashboard");
+
+    return null;
+  } catch {
+    return { error: "Subscription couldn't be created. Try again." };
+  }
 }
-export async function updateMember(
-  memberId: number,
+
+export async function addMember(
+  _prev: ActionState,
   formData: FormData,
-): Promise<void> {
+): Promise<ActionState> {
+  const denied = await guard();
+
+  if (denied) {
+    return denied;
+  }
+
   const name = formData.get("name");
   const email = formData.get("email");
 
   if (typeof name !== "string" || typeof email !== "string") {
-    throw new Error("Invalid form data");
+    return { error: "Invalid form data." };
   }
 
   if (name.trim() === "" || email.trim() === "") {
-    throw new Error("Name and email are required");
+    return { error: "Name and email are required." };
   }
 
-  const member = await db.query.members.findFirst({
-    where: eq(members.id, memberId),
-    with: { user: true },
-  });
+  try {
+    const subscription = await db.query.subscriptions.findFirst({
+      where: eq(subscriptions.ownerId, 1),
+    });
 
-  if (!member) {
-    throw new Error("Member not found");
-  }
+    if (!subscription) {
+      return { error: "Create a subscription first." };
+    }
 
-  const normalizedEmail = email.trim().toLowerCase();
+    const normalizedEmail = email.trim().toLowerCase();
 
-  if (normalizedEmail !== member.user.email) {
-    const conflicting = await db.query.users.findFirst({
+    let user = await db.query.users.findFirst({
+      where: eq(users.email, normalizedEmail),
+    });
+
+    if (!user) {
+      const insertedUsers = await db
+        .insert(users)
+        .values({
+          name: name.trim(),
+          email: normalizedEmail,
+        })
+        .returning();
+      user = insertedUsers[0];
+    }
+
+    const existingMember = await db.query.members.findFirst({
       where: and(
-        eq(users.email, normalizedEmail),
-        ne(users.id, member.userId),
+        eq(members.subscriptionId, subscription.id),
+        eq(members.userId, user.id),
       ),
     });
 
-    if (conflicting) {
-      throw new Error("Another user already uses this email");
+    if (existingMember) {
+      return { error: "This person is already a member." };
     }
+
+    const token = crypto.randomBytes(24).toString("hex");
+
+    await db.insert(members).values({
+      subscriptionId: subscription.id,
+      userId: user.id,
+      token,
+    });
+
+    revalidatePath("/dashboard");
+
+    return null;
+  } catch {
+    return { error: "Member couldn't be added. Try again." };
   }
-
-  await db
-    .update(users)
-    .set({ name: name.trim(), email: normalizedEmail })
-    .where(eq(users.id, member.userId));
-
-  revalidatePath("/dashboard");
-}
-
-export async function deleteMember(memberId: number): Promise<void> {
-  await db.delete(payments).where(eq(payments.memberId, memberId));
-  await db.delete(members).where(eq(members.id, memberId));
-
-  revalidatePath("/dashboard");
-}
-
-export async function addMember(formData: FormData) {
-  const name = formData.get("name");
-  const email = formData.get("email");
-
-  if (typeof name !== "string" || typeof email !== "string") {
-    throw new Error("Invalid form data");
-  }
-
-  const subscription = await db.query.subscriptions.findFirst({
-    where: eq(subscriptions.ownerId, 1),
-  });
-
-  if (!subscription) {
-    throw new Error("Subscription not found");
-  }
-
-  let user = await db.query.users.findFirst({
-    where: eq(users.email, email),
-  });
-
-  if (!user) {
-    const insertedUsers = await db
-      .insert(users)
-      .values({
-        name,
-        email,
-      })
-      .returning();
-    user = insertedUsers[0];
-  }
-
-  const existingMember = await db.query.members.findFirst({
-    where: and(
-      eq(members.subscriptionId, subscription.id),
-      eq(members.userId, user.id),
-    ),
-  });
-
-  if (existingMember) {
-    throw new Error("This user is already a member");
-  }
-
-  const token = crypto.randomBytes(24).toString("hex");
-
-  await db.insert(members).values({
-    subscriptionId: subscription.id,
-    userId: user.id,
-    token,
-  });
 }

@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useTransition } from "react";
-import { Badge, Input, Label } from "@/components/ui";
+import { Badge, FormError, Input, Label } from "@/components/ui";
 import { formatDateLong, formatPeriod } from "@/lib/periods";
 import CopyPaymentLinkButton from "./CopyPaymentLink";
 
@@ -40,16 +40,17 @@ export default function MemberRow({
     payments: MemberPayment[];
   };
   currentPeriodStart: string;
-  remindAction: (memberId: number) => Promise<void>;
+  remindAction: (memberId: number) => Promise<{ error?: string }>;
   updateAction: (
-    memberId: number,
+    prev: { error: string } | null,
     formData: FormData,
-  ) => Promise<void>;
-  deleteAction: (memberId: number) => Promise<void>;
+  ) => Promise<{ error: string } | null>;
+  deleteAction: (memberId: number) => Promise<{ error?: string }>;
 }) {
   const [open, setOpen] = useState(false);
   const [editing, setEditing] = useState(false);
   const [confirmingDelete, setConfirmingDelete] = useState(false);
+  const [actionError, setActionError] = useState<string | null>(null);
   const [isPending, startTransition] = useTransition();
 
   const history = [...member.payments].sort(
@@ -61,16 +62,35 @@ export default function MemberRow({
   const isPaid = current?.status === "paid";
   const unpaidCount = history.filter((p) => p.status !== "paid").length;
 
-  function handleDelete() {
+  function runAction(run: () => Promise<{ error?: string }>) {
+    setActionError(null);
+
     startTransition(async () => {
-      await deleteAction(member.id);
+      const result = await run();
+
+      if (result.error) {
+        setActionError(result.error);
+      }
     });
   }
 
+  function handleDelete() {
+    runAction(() => deleteAction(member.id));
+  }
+
+  function handleRemind() {
+    runAction(() => remindAction(member.id));
+  }
+
   function handleUpdate(formData: FormData) {
-    startTransition(async () => {
-      await updateAction(member.id, formData);
-      setEditing(false);
+    runAction(async () => {
+      const result = await updateAction(null, formData);
+
+      if (!result?.error) {
+        setEditing(false);
+      }
+
+      return result ?? {};
     });
   }
 
@@ -153,6 +173,8 @@ export default function MemberRow({
       >
         <div className="overflow-hidden">
           <div className="mx-4 mb-4 space-y-4 rounded-xl border border-white/[0.07] bg-white/[0.04] p-4 sm:ml-13 sm:mr-5">
+            {actionError && <FormError>{actionError}</FormError>}
+
             {/* Current period actions */}
             <div className="flex flex-wrap items-center justify-between gap-3">
               {current && !isPaid ? (
@@ -178,9 +200,7 @@ export default function MemberRow({
                 <CopyPaymentLinkButton token={member.token} />
 
                 {current && !isPaid && (
-                  <form action={remindAction.bind(null, member.id)}>
-                    <SubmitRemindButton />
-                  </form>
+                  <SubmitRemindButton onClick={handleRemind} disabled={isPending} />
                 )}
 
                 <span
@@ -252,6 +272,8 @@ export default function MemberRow({
                 action={handleUpdate}
                 className="grid gap-3 rounded-lg border border-white/[0.07] bg-black/20 p-4 sm:grid-cols-2"
               >
+                <input type="hidden" name="memberId" value={member.id} />
+
                 <div>
                   <Label htmlFor={`name-${member.id}`}>
                     Name
@@ -354,11 +376,19 @@ export default function MemberRow({
   );
 }
 
-function SubmitRemindButton() {
+function SubmitRemindButton({
+  onClick,
+  disabled,
+}: {
+  onClick: () => void;
+  disabled?: boolean;
+}) {
   return (
     <button
-      type="submit"
-      className="inline-flex items-center gap-1.5 rounded-full border border-white/10 bg-white/[0.06] px-3.5 py-1.5 text-xs font-semibold text-white transition hover:bg-white/[0.1] active:scale-[0.99]"
+      type="button"
+      onClick={onClick}
+      disabled={disabled}
+      className="inline-flex items-center gap-1.5 rounded-full border border-white/10 bg-white/[0.06] px-3.5 py-1.5 text-xs font-semibold text-white transition hover:bg-white/[0.1] active:scale-[0.99] disabled:opacity-50"
     >
       <svg viewBox="0 0 20 20" fill="none" aria-hidden="true" className="h-3 w-3">
         <path

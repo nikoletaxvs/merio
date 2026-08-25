@@ -30,10 +30,12 @@ export async function sendEmail({
   to,
   subject,
   html,
+  text,
 }: {
   to: { email: string; name?: string };
   subject: string;
   html: string;
+  text?: string;
 }) {
   const user = process.env.GMAIL_USER;
 
@@ -41,6 +43,12 @@ export async function sendEmail({
     from: `"Merio" <${user}>`,
     to: to.name ? `"${to.name}" <${to.email}>` : to.email,
     subject,
+    text:
+      text ??
+      html
+        .replace(/<[^>]+>/g, " ")
+        .replace(/\s+/g, " ")
+        .trim(),
     html,
   });
 }

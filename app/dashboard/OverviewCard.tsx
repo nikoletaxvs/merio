@@ -1,7 +1,7 @@
 "use client";
 
-import { useState, useTransition } from "react";
-import { Card, Input, Label } from "@/components/ui";
+import { useActionState, useState } from "react";
+import { Card, FormError, Input, Label } from "@/components/ui";
 import { formatPeriod } from "@/lib/periods";
 
 export default function OverviewCard({
@@ -17,17 +17,13 @@ export default function OverviewCard({
   periodStart: string;
   periodEnd: string;
   startDate: string;
-  saveAction: (formData: FormData) => Promise<void>;
+  saveAction: (
+    prev: { error: string } | null,
+    formData: FormData,
+  ) => Promise<{ error: string } | null>;
 }) {
   const [editing, setEditing] = useState(false);
-  const [isPending, startTransition] = useTransition();
-
-  function handleSave(formData: FormData) {
-    startTransition(async () => {
-      await saveAction(formData);
-      setEditing(false);
-    });
-  }
+  const [state, formAction, isPending] = useActionState(saveAction, null);
 
   return (
     <Card className="mt-8 overflow-hidden border-white/10 bg-white/[0.04] p-0 shadow-none">
@@ -82,7 +78,7 @@ export default function OverviewCard({
 
       {editing && (
         <form
-          action={handleSave}
+          action={formAction}
           className="grid gap-4 border-t border-white/[0.08] bg-black/20 p-5 sm:grid-cols-[1fr_1fr_auto] sm:items-end sm:p-6"
         >
           <div>
@@ -115,6 +111,12 @@ export default function OverviewCard({
               defaultValue={generationDay}
             />
           </div>
+
+          {state?.error && (
+            <div className="sm:col-span-3">
+              <FormError>{state.error}</FormError>
+            </div>
+          )}
 
           <div className="flex items-center gap-2.5">
             <button
