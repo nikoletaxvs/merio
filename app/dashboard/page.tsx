@@ -8,6 +8,7 @@ import {
   deleteMember,
   logout,
   remindMember,
+  testCronReminders,
   updateBillingPeriod,
   updateFamilySettings,
   updateMember,
@@ -15,6 +16,7 @@ import {
 import {
   ActivateAllButton,
   AddMemberForm,
+  CronTestPanel,
   FamilySettingsForm,
 } from "./forms";
 import MemberRow from "./MemberRow";
@@ -227,6 +229,25 @@ export default async function DashboardPage() {
               </div>
             )}
           </div>
+        </section>
+
+        {/* Cron test */}
+        <section className="mt-10">
+          <SectionHeading
+            title="Cron test"
+            description="Simulate the notification cron for selected members on a chosen date and time."
+          />
+
+          <Card className="mt-4 border-white/10 bg-white/[0.04] shadow-none">
+            <CronTestPanel
+              members={members.map((member) => ({
+                id: member.id,
+                name: member.user.name,
+                email: member.user.email,
+              }))}
+              action={testCronReminders}
+            />
+          </Card>
         </section>
 
         {/* Add member & Family settings */}
