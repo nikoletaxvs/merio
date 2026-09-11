@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import { getBaseUrl } from "@/lib/base-url";
 import { sendPeriodStartReminders } from "@/app/dashboard/period-reminders";
 
 export async function GET(request: NextRequest) {
@@ -9,7 +10,7 @@ export async function GET(request: NextRequest) {
   }
 
   try {
-    const baseUrl = new URL(request.url).origin;
+    const baseUrl = await getBaseUrl();
     const { searchParams } = new URL(request.url);
     const dateParam = searchParams.get("date");
     const hourParam = searchParams.get("hour");
