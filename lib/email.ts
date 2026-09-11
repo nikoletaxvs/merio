@@ -39,7 +39,7 @@ export async function sendEmail({
 }) {
   const user = process.env.GMAIL_USER;
 
-  await getTransporter().sendMail({
+  const info = await getTransporter().sendMail({
     from: `"Merio" <${user}>`,
     to: to.name ? `"${to.name}" <${to.email}>` : to.email,
     subject,
@@ -51,4 +51,8 @@ export async function sendEmail({
         .trim(),
     html,
   });
+
+  console.log(
+    `[email] sent — to="${to.email}" subject="${subject}" messageId="${info.messageId}" response="${info.response}"`,
+  );
 }
