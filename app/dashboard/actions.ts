@@ -2,12 +2,12 @@
 
 import crypto from "crypto";
 import { and, eq, ne } from "drizzle-orm";
-import { headers } from "next/headers";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { db } from "@/db";
 import { members, payments, subscriptions, users } from "@/db/schema";
 import { endSession, isAuthenticated } from "@/lib/auth";
+import { getBaseUrl } from "@/lib/base-url";
 import { generatePayments } from "./payment-generation";
 import { sendPeriodStartReminders, sendReminderToMember } from "./period-reminders";
 
@@ -116,10 +116,7 @@ export async function testCronReminders(
   }
 
   try {
-    const headersList = await headers();
-    const host = headersList.get("host") ?? "localhost:3000";
-    const proto = headersList.get("x-forwarded-proto") ?? "http";
-    const baseUrl = `${proto}://${host}`;
+    const baseUrl = await getBaseUrl();
 
     const { reminded, skipped, notDue, created } =
       await sendPeriodStartReminders(baseUrl, sim ?? new Date(), {
@@ -144,11 +141,9 @@ export async function remindMember(
   }
 
   try {
-    const headersList = await headers();
-    const host = headersList.get("host") ?? "localhost:3000";
-    const proto = headersList.get("x-forwarded-proto") ?? "http";
+    const baseUrl = await getBaseUrl();
 
-    const result = await sendReminderToMember(memberId, `${proto}://${host}`);
+    const result = await sendReminderToMember(memberId, baseUrl);
     revalidatePath("/dashboard");
 
     if (!result.sent) {
