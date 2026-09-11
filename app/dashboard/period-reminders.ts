@@ -42,7 +42,12 @@ export function shouldSendReminder(daysSinceStart: number): boolean {
 export async function sendPeriodStartReminders(
   baseUrl: string,
   today: Date = new Date(),
+  options?: { memberIds?: number[]; isTest?: boolean; ignoreCadence?: boolean },
 ) {
+  const allowedIds = options?.memberIds
+    ? new Set(options.memberIds)
+    : null;
+
   const allSubscriptions = await db.query.subscriptions.findMany({
     with: {
       members: {
@@ -54,8 +59,19 @@ export async function sendPeriodStartReminders(
   });
 
   let reminded = 0;
+  let skipped = 0;
+  let notDue = 0;
+  let created = 0;
 
   for (const subscription of allSubscriptions) {
+    const memberRows = allowedIds
+      ? subscription.members.filter((member) => allowedIds.has(member.id))
+      : subscription.members;
+
+    if (memberRows.length === 0) {
+      continue;
+    }
+
     const { start: periodStart, end: periodEnd } = getCurrentPeriod(
       subscription.startDate,
       today,
@@ -63,13 +79,14 @@ export async function sendPeriodStartReminders(
 
     const daysSinceStart = daysSincePeriodStart(periodStart, today);
 
-    if (!shouldSendReminder(daysSinceStart)) {
+    if (!options?.ignoreCadence && !shouldSendReminder(daysSinceStart)) {
+      notDue += memberRows.length;
       continue;
     }
 
     const isFollowUp = daysSinceStart > 0;
 
-    for (const member of subscription.members) {
+    for (const member of memberRows) {
       let payment = await db.query.payments.findFirst({
         where: and(
           eq(payments.memberId, member.id),
@@ -90,17 +107,21 @@ export async function sendPeriodStartReminders(
           .returning();
 
         payment = inserted[0];
+        created++;
       }
 
       if (payment.status === "paid") {
+        skipped++;
         continue;
       }
 
       await sendEmail({
         to: { email: member.user.email, name: member.user.name },
-        subject: isFollowUp
-          ? `Reminder: your ${familyNameOf(subscription)} payment is still pending`
-          : `Your ${familyNameOf(subscription)} payment for ${formatPeriod(periodStart, periodEnd)}`,
+        subject: `${options?.isTest ? "[Test] " : ""}${
+          isFollowUp
+            ? `Reminder: your ${familyNameOf(subscription)} payment is still pending`
+            : `Your ${familyNameOf(subscription)} payment for ${formatPeriod(periodStart, periodEnd)}`
+        }`,
         html: reminderEmailHtml({
           name: member.user.name,
           subscriptionName: subscription.name,
@@ -128,10 +149,17 @@ export async function sendPeriodStartReminders(
 
   return {
     reminded,
+    skipped,
+    notDue,
+    created,
   };
 }
 
-export async function sendReminderToMember(memberId: number, baseUrl: string) {
+export async function sendReminderToMember(
+  memberId: number,
+  baseUrl: string,
+  options?: { isTest?: boolean },
+) {
   const member = await db.query.members.findFirst({
     where: eq(members.id, memberId),
     with: {
@@ -176,7 +204,7 @@ export async function sendReminderToMember(memberId: number, baseUrl: string) {
 
   await sendEmail({
     to: { email: member.user.email, name: member.user.name },
-    subject: `Your ${familyNameOf(member.subscription)} payment for ${formatPeriod(periodStart, periodEnd)}`,
+    subject: `${options?.isTest ? "[Test] " : ""}Your ${familyNameOf(member.subscription)} payment for ${formatPeriod(periodStart, periodEnd)}`,
     html: reminderEmailHtml({
       name: member.user.name,
       subscriptionName: member.subscription.name,

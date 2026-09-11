@@ -9,9 +9,18 @@ import { db } from "@/db";
 import { members, payments, subscriptions, users } from "@/db/schema";
 import { endSession, isAuthenticated } from "@/lib/auth";
 import { generatePayments } from "./payment-generation";
-import { sendReminderToMember } from "./period-reminders";
+import { sendPeriodStartReminders, sendReminderToMember } from "./period-reminders";
 
 export type ActionState = { error: string } | null;
+export type TestRemindersState =
+  | {
+      error?: string;
+      sent?: number;
+      skipped?: number;
+      notDue?: number;
+      created?: number;
+    }
+  | null;
 
 async function guard(): Promise<ActionState> {
   if (!(await isAuthenticated())) {
@@ -19,6 +28,40 @@ async function guard(): Promise<ActionState> {
   }
 
   return null;
+}
+
+function simulatedDate(formData: FormData): Date | "invalid" | null {
+  const raw = formData.get("simTimestamp");
+
+  if (typeof raw !== "string" || raw.trim() === "") {
+    return null;
+  }
+
+  const date = new Date(raw);
+
+  return isNaN(date.getTime()) ? "invalid" : date;
+}
+
+async function selectedOwnerMemberIds(
+  formData: FormData,
+): Promise<number[] | null> {
+  const memberIds = formData
+    .getAll("memberIds")
+    .map((value) => Number(value))
+    .filter((id) => Number.isInteger(id));
+
+  const subscription = await db.query.subscriptions.findFirst({
+    where: eq(subscriptions.ownerId, 1),
+    with: { members: true },
+  });
+
+  if (!subscription) {
+    return null;
+  }
+
+  const allowedIds = new Set(subscription.members.map((member) => member.id));
+
+  return memberIds.filter((id) => allowedIds.has(id));
 }
 
 export async function logout(): Promise<void> {
@@ -43,6 +86,53 @@ export async function activateAllPayments(
     return null;
   } catch {
     return { error: "Couldn't generate payments. Try again." };
+  }
+}
+
+export async function testCronReminders(
+  _prev: TestRemindersState,
+  formData: FormData,
+): Promise<TestRemindersState> {
+  const denied = await guard();
+
+  if (denied) {
+    return denied;
+  }
+
+  const memberIds = await selectedOwnerMemberIds(formData);
+
+  if (memberIds === null) {
+    return { error: "No subscription found." };
+  }
+
+  if (memberIds.length === 0) {
+    return { error: "Select at least one member." };
+  }
+
+  const sim = simulatedDate(formData);
+
+  if (sim === "invalid") {
+    return { error: "Pick a valid date and time." };
+  }
+
+  try {
+    const headersList = await headers();
+    const host = headersList.get("host") ?? "localhost:3000";
+    const proto = headersList.get("x-forwarded-proto") ?? "http";
+    const baseUrl = `${proto}://${host}`;
+
+    const { reminded, skipped, notDue, created } =
+      await sendPeriodStartReminders(baseUrl, sim ?? new Date(), {
+        memberIds,
+        isTest: true,
+        ignoreCadence: true,
+      });
+
+    revalidatePath("/dashboard");
+
+    return { sent: reminded, skipped, notDue, created };
+  } catch {
+    return { error: "Test reminders couldn't be sent. Try again." };
   }
 }
 
