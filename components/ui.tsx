@@ -3,46 +3,49 @@ import type { ComponentProps, ReactNode } from "react";
 
 export function MerioMark({ className = "" }: { className?: string }) {
   return (
-    <svg
-      viewBox="0 0 24 24"
-      className={className}
-      aria-hidden="true"
-      fill="none"
-    >
-      <rect width="24" height="24" rx="6.5" className="fill-brand" />
+    <svg viewBox="0 0 24 24" className={className} aria-hidden="true" fill="none">
+      <rect width="24" height="24" rx="4" className="fill-foreground" />
       <path
         d="M6.5 16.5v-9l5.5 9 5.5-9v9"
-        stroke="currentColor"
-        strokeWidth="2.2"
-        strokeLinecap="round"
-        strokeLinejoin="round"
+        className="stroke-background"
+        strokeWidth="2"
+        strokeLinecap="square"
+        strokeLinejoin="miter"
       />
     </svg>
   );
 }
 
 const buttonVariants = {
-  primary:
-    "bg-brand text-black hover:bg-brand-hover active:bg-brand",
+  primary: "bg-foreground text-background hover:bg-foreground/85",
   secondary:
-    "bg-surface text-foreground border border-border hover:bg-surface-muted",
+    "border border-border-strong bg-surface text-foreground hover:bg-surface-muted",
+  ghost: "text-muted hover:bg-surface-muted hover:text-foreground",
+  danger: "bg-danger text-surface hover:bg-danger/85",
+};
+
+const buttonSizes = {
+  md: "gap-2 px-4 py-2 text-sm",
+  sm: "gap-1.5 px-2.5 py-1 text-xs",
 };
 
 const buttonBase =
-  "inline-flex items-center justify-center gap-2 rounded-full px-5 py-2.5 text-sm font-semibold transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-brand focus-visible:ring-offset-2 focus-visible:ring-offset-background active:scale-[0.99] disabled:pointer-events-none disabled:opacity-50";
+  "inline-flex items-center justify-center rounded-md font-medium transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-foreground/40 focus-visible:ring-offset-2 focus-visible:ring-offset-background disabled:pointer-events-none disabled:opacity-50";
 
 export function Button({
   children,
   href,
   variant = "primary",
+  size = "md",
   className = "",
   ...props
 }: {
   children: ReactNode;
   href?: string;
   variant?: keyof typeof buttonVariants;
+  size?: keyof typeof buttonSizes;
 } & ComponentProps<"button">) {
-  const classes = `${buttonBase} ${buttonVariants[variant]} ${className}`;
+  const classes = `${buttonBase} ${buttonSizes[size]} ${buttonVariants[variant]} ${className}`;
 
   if (href) {
     return (
@@ -53,7 +56,7 @@ export function Button({
   }
 
   return (
-    <button className={classes} {...props}>
+    <button type="button" className={classes} {...props}>
       {children}
     </button>
   );
@@ -67,18 +70,17 @@ export function Card({
   className?: string;
 }) {
   return (
-    <div
-      className={`rounded-2xl border border-border bg-surface p-6 shadow-sm ${className}`}
-    >
+    <div className={`rounded-md border border-border bg-surface p-6 ${className}`}>
       {children}
     </div>
   );
 }
 
+// Rubber-stamp style status label.
 const badgeTones = {
-  neutral: "bg-surface-muted text-muted",
-  success: "bg-brand-soft text-brand",
-  pending: "bg-warning-soft text-warning",
+  neutral: "border-border-strong text-muted",
+  success: "border-accent/50 bg-accent-soft text-accent",
+  pending: "border-pending/50 bg-pending-soft text-pending",
 };
 
 export function Badge({
@@ -92,9 +94,24 @@ export function Badge({
 }) {
   return (
     <span
-      className={`inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-semibold ${badgeTones[tone]} ${className}`}
+      className={`inline-flex items-center gap-1 rounded-sm border px-1.5 py-0.5 font-mono text-[11px] font-medium uppercase tracking-wider ${badgeTones[tone]} ${className}`}
     >
       {children}
+    </span>
+  );
+}
+
+/** Euro amount from cents, set in mono so columns of money line up. */
+export function Amount({
+  cents,
+  className = "",
+}: {
+  cents: number;
+  className?: string;
+}) {
+  return (
+    <span className={`font-mono tabular-nums ${className}`}>
+      €{(cents / 100).toFixed(2)}
     </span>
   );
 }
@@ -111,21 +128,18 @@ export function Label({
   return (
     <label
       htmlFor={htmlFor}
-      className={`block text-sm font-medium text-white/80 ${className}`}
+      className={`block text-sm font-medium text-foreground ${className}`}
     >
       {children}
     </label>
   );
 }
 
-const inputBase =
-  "mt-2 w-full rounded-xl border border-white/10 bg-white/[0.05] px-3.5 py-2.5 text-sm text-white outline-none transition placeholder:text-white/25 hover:border-white/15 focus:border-brand/60 focus:bg-white/[0.07] focus:ring-2 focus:ring-brand/10";
+export const inputClasses =
+  "mt-1.5 w-full rounded-md border border-border-strong bg-surface px-3 py-2 text-sm text-foreground outline-none transition-colors placeholder:text-muted/60 focus:border-foreground focus:ring-2 focus:ring-foreground/10";
 
-export function Input({
-  className = "",
-  ...props
-}: ComponentProps<"input">) {
-  return <input className={`${inputBase} ${className}`} {...props} />;
+export function Input({ className = "", ...props }: ComponentProps<"input">) {
+  return <input className={`${inputClasses} ${className}`} {...props} />;
 }
 
 export function SectionHeading({
@@ -138,15 +152,11 @@ export function SectionHeading({
   action?: ReactNode;
 }) {
   return (
-    <div className="flex items-end justify-between gap-4">
+    <div className="flex items-end justify-between gap-4 border-b border-border pb-3">
       <div>
-        <h2 className="text-lg font-bold tracking-tight sm:text-xl">
-          {title}
-        </h2>
+        <h2 className="font-display text-xl font-medium">{title}</h2>
 
-        {description && (
-          <p className="mt-1 text-sm text-white/40">{description}</p>
-        )}
+        {description && <p className="mt-0.5 text-sm text-muted">{description}</p>}
       </div>
 
       {action}
@@ -158,7 +168,7 @@ export function FormError({ children }: { children: ReactNode }) {
   return (
     <p
       role="alert"
-      className="rounded-lg bg-red-500/10 px-3 py-2 text-sm text-red-300 ring-1 ring-red-500/20"
+      className="rounded-md border border-danger/40 bg-danger-soft px-3 py-2 text-sm text-danger"
     >
       {children}
     </p>

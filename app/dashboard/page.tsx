@@ -2,7 +2,7 @@ import { eq } from "drizzle-orm";
 import Link from "next/link";
 import { db } from "@/db";
 import { subscriptions } from "@/db/schema";
-import { Badge, Card, MerioMark, SectionHeading } from "@/components/ui";
+import { Badge, Button, Card, MerioMark, SectionHeading } from "@/components/ui";
 import { Icon } from "@/components/icon";
 import {
   activateAllPayments,
@@ -48,17 +48,16 @@ export default async function DashboardPage() {
 
   if (!subscription) {
     return (
-      <main className="flex min-h-screen w-full flex-1 items-center justify-center bg-black px-6 py-16 text-center text-white">
+      <main className="flex min-h-screen w-full flex-1 items-center justify-center px-6 py-16 text-center">
         <div className="flex max-w-sm flex-col items-center">
-          <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-white/[0.06] ring-1 ring-white/10">
-            <MerioMark className="h-8 w-8" />
-          </div>
+          <MerioMark className="h-10 w-10" />
 
-          <h1 className="mt-6 text-2xl font-bold tracking-tight">Merio</h1>
+          <h1 className="mt-6 font-display text-2xl font-medium">
+            No subscription yet
+          </h1>
 
-          <p className="mt-2 text-sm leading-6 text-white/50">
-            You don&apos;t have a subscription yet. Create one to start
-            splitting your payments with friends.
+          <p className="mt-2 text-sm leading-6 text-muted">
+            Once a subscription exists, its members and payments show up here.
           </p>
         </div>
       </main>
@@ -81,21 +80,22 @@ export default async function DashboardPage() {
     (member) => member.payment?.status === "paid",
   ).length;
 
-  const paidPercentage =
-    members.length > 0 ? Math.round((paidCount / members.length) * 100) : 0;
+  const demo = isDemoMode();
+
+  const allPaid = members.length > 0 && paidCount === members.length;
 
   return (
-    <main className="page-glow min-h-screen w-full bg-black text-white">
-      <div className="mx-auto w-full max-w-4xl px-5 py-8 sm:px-6 sm:py-10">
-        {isDemoMode() && (
-          <div className="mb-6 flex flex-wrap items-center gap-x-4 gap-y-2 rounded-2xl border border-brand/30 bg-brand/10 px-4 py-3 text-sm">
-            <p className="flex-1 text-white/75">
-              <span className="font-semibold text-white">Demo mode.</span>{" "}
-              Sample data that resets every night. Emails are logged, not sent.
-              See a member&apos;s view at{" "}
+    <main className="min-h-screen w-full">
+      {demo && (
+        <div className="border-b border-border bg-surface-muted">
+          <div className="mx-auto flex w-full max-w-4xl flex-wrap items-center gap-x-4 gap-y-2 px-5 py-2.5 text-sm sm:px-6">
+            <p className="flex-1 text-muted">
+              <span className="font-medium text-foreground">Demo.</span> Sample
+              data, reset every night. Emails are logged, not sent. See what a
+              member sees at{" "}
               <Link
                 href="/pay/demo-alex"
-                className="font-medium text-brand underline-offset-2 hover:underline"
+                className="font-mono text-foreground underline decoration-border-strong underline-offset-4 hover:decoration-foreground"
               >
                 /pay/demo-alex
               </Link>
@@ -103,79 +103,78 @@ export default async function DashboardPage() {
             </p>
 
             <form action={resetDemo}>
-              <button
-                type="submit"
-                className="rounded-full border border-white/15 px-3 py-1.5 text-xs font-semibold text-white/80 transition hover:bg-white/[0.08] hover:text-white"
-              >
+              <Button type="submit" variant="secondary" size="sm">
                 Reset data
-              </button>
+              </Button>
             </form>
           </div>
-        )}
+        </div>
+      )}
 
-        {/* Header */}
+      <div className="mx-auto w-full max-w-4xl px-5 py-8 sm:px-6 sm:py-12">
         <header>
-          <div className="flex items-center gap-3.5">
+          <div className="flex items-start gap-4">
             {subscription.photoUrl ? (
               // eslint-disable-next-line @next/next/no-img-element
               <img
                 src={subscription.photoUrl}
                 alt=""
-                className="h-12 w-12 shrink-0 rounded-2xl object-cover ring-1 ring-white/10"
+                className="h-12 w-12 shrink-0 rounded-md border border-border object-cover"
               />
             ) : (
-              <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-brand shadow-lg shadow-brand/25">
-                <MerioMark className="h-7 w-7 text-black" />
-              </div>
+              <MerioMark className="h-12 w-12 shrink-0" />
             )}
 
-            <div className="min-w-0">
-              <h1 className="truncate text-xl font-bold tracking-tight sm:text-2xl">
+            <div className="min-w-0 flex-1">
+              <h1 className="truncate font-display text-3xl font-medium">
                 {subscription.familyName ?? subscription.name}
               </h1>
-              <p className="mt-0.5 text-sm text-white/45">
-                Spotify family subscription
-              </p>
+              {subscription.familyName && (
+                <p className="mt-0.5 text-sm text-muted">{subscription.name}</p>
+              )}
             </div>
 
-            <Badge
-              tone={paidCount === members.length ? "success" : "neutral"}
-              className="ml-auto shrink-0 tabular-nums"
-            >
-              {paidCount}/{members.length} paid
-            </Badge>
-
-            <form action={logout} className="shrink-0">
-              <button
-                type="submit"
-                aria-label="Sign out"
-                title="Sign out"
-                className="flex h-9 w-9 items-center justify-center rounded-full border border-white/10 bg-white/[0.06] text-white/50 transition hover:bg-white/[0.1] hover:text-white"
-              >
-                <Icon name="logout" className="h-4 w-4" />
-              </button>
-            </form>
+            {/* In demo mode, signing out would just sign the visitor back in. */}
+            {!demo && (
+              <form action={logout} className="shrink-0">
+                <Button type="submit" variant="ghost" size="sm">
+                  <Icon name="logout" className="h-3.5 w-3.5" />
+                  Sign out
+                </Button>
+              </form>
+            )}
           </div>
 
-          <div className="mt-6 flex items-center gap-4">
-            <div className="h-1.5 flex-1 overflow-hidden rounded-full bg-white/[0.07]">
-              <div
-                className={`h-full rounded-full transition-all duration-500 ${
-                  paidCount === members.length && members.length > 0
-                    ? "bg-emerald-400"
-                    : "bg-gradient-to-r from-brand to-brand-hover"
-                }`}
-                style={{ width: `${paidPercentage}%` }}
-              />
+          <div className="mt-8">
+            <div className="flex items-baseline justify-between gap-4 text-sm">
+              <p className="text-muted">
+                <span className="font-mono font-medium text-foreground">{paidCount}</span>{" "}
+                of{" "}
+                <span className="font-mono font-medium text-foreground">
+                  {members.length}
+                </span>{" "}
+                paid this period
+              </p>
+
+              {allPaid && <Badge tone="success">All settled</Badge>}
             </div>
 
-            <span className="shrink-0 text-sm font-semibold tabular-nums text-white/70">
-              {paidPercentage}%
-            </span>
+            {/* One cell per member, like ticks in a ledger column. */}
+            <div className="mt-3 flex gap-1" aria-hidden="true">
+              {members.map((member) => (
+                <span
+                  key={member.id}
+                  className={`h-2 flex-1 rounded-sm ${
+                    member.payment?.status === "paid"
+                      ? "bg-accent"
+                      : "border border-border-strong"
+                  }`}
+                />
+              ))}
+            </div>
           </div>
         </header>
 
-        {/* Overview */}
         <OverviewCard
           amountCents={subscription.amountCents}
           generationDay={subscription.generationDay}
@@ -185,77 +184,82 @@ export default async function DashboardPage() {
           saveAction={updateBillingPeriod}
         />
 
-        {/* Next period countdown */}
         <PeriodCountdown generationDay={subscription.generationDay} />
 
-        {/* Members */}
-        <section className="mt-10">
+        <section className="mt-12">
           <SectionHeading
             title="Members"
-            description="Track this period's payments."
-            action={
-              <div className="flex items-center gap-3">
-                <span className="hidden text-sm text-white/40 sm:block">
-                  {members.length} {members.length === 1 ? "member" : "members"}
-                </span>
-
-                <ActivateAllButton action={activateAllPayments} />
-              </div>
-            }
+            description="Who owes what this period."
+            action={<ActivateAllButton action={activateAllPayments} />}
           />
 
-          <div className="mt-4 overflow-hidden rounded-2xl border border-white/[0.08] bg-white/[0.02] shadow-lg shadow-black/20 ring-1 ring-inset ring-white/[0.02]">
-            {members.length > 0 ? (
-              <div className="divide-y divide-white/[0.07]">
-                {members.map((member) => (
-                  <MemberRow
-                    key={member.id}
-                    currentPeriodStart={periodStart}
-                    member={{
-                      id: member.id,
-                      token: member.token,
-                      user: {
-                        name: member.user.name,
-                        email: member.user.email,
-                      },
-                      payments: member.payments.map((payment) => ({
-                        id: payment.id,
-                        amountCents: payment.amountCents,
-                        periodStart: payment.periodStart,
-                        periodEnd: payment.periodEnd,
-                        status: payment.status,
-                        paidAt: payment.paidAt,
-                      })),
-                    }}
-                    remindAction={remindMember}
-                    updateAction={updateMember}
-                    deleteAction={deleteMember}
-                  />
-                ))}
-              </div>
-            ) : (
-              <div className="px-6 py-12 text-center">
-                <div className="mx-auto flex h-10 w-10 items-center justify-center rounded-full bg-white/[0.06]">
-                  <span className="text-lg text-white/40">+</span>
-                </div>
-
-                <p className="mt-4 font-medium">No members yet</p>
-                <p className="mt-1 text-sm text-white/40">
-                  Add your first member below to start splitting payments.
-                </p>
-              </div>
-            )}
-          </div>
+          {members.length > 0 ? (
+            <div className="divide-y divide-border border-b border-border">
+              {members.map((member) => (
+                <MemberRow
+                  key={member.id}
+                  currentPeriodStart={periodStart}
+                  member={{
+                    id: member.id,
+                    token: member.token,
+                    user: {
+                      name: member.user.name,
+                      email: member.user.email,
+                    },
+                    payments: member.payments.map((payment) => ({
+                      id: payment.id,
+                      amountCents: payment.amountCents,
+                      periodStart: payment.periodStart,
+                      periodEnd: payment.periodEnd,
+                      status: payment.status,
+                      paidAt: payment.paidAt,
+                    })),
+                  }}
+                  remindAction={remindMember}
+                  updateAction={updateMember}
+                  deleteAction={deleteMember}
+                />
+              ))}
+            </div>
+          ) : (
+            <p className="py-10 text-center text-sm text-muted">
+              No members yet. Add the first one below.
+            </p>
+          )}
         </section>
 
-        {/* Cron test */}
-        <section className="mt-10">
+        <div className="mt-12 grid gap-10 lg:grid-cols-2 lg:items-start">
+          <section>
+            <SectionHeading title="Add member" />
+
+            <div className="mt-4">
+              <AddMemberForm action={addMember} />
+            </div>
+          </section>
+
+          <section>
+            <SectionHeading
+              title="Family settings"
+              description="Name and photo shown on members' pay pages."
+            />
+
+            <div className="mt-4">
+              <FamilySettingsForm
+                action={updateFamilySettings}
+                familyName={subscription.familyName ?? ""}
+                photoUrl={subscription.photoUrl ?? ""}
+              />
+            </div>
+          </section>
+        </div>
+
+        <section className="mt-12 pb-10">
           <SectionHeading
-            title="Cron test"
-            description="Simulate the notification cron for selected members on a chosen date and time."
+            title="Test the reminder cron"
+            description="Run the reminder job for chosen members as if it were another date and time."
           />
 
-          <Card className="mt-4 border-white/10 bg-white/[0.04] shadow-none">
+          <Card className="mt-4">
             <CronTestPanel
               members={members.map((member) => ({
                 id: member.id,
@@ -266,35 +270,6 @@ export default async function DashboardPage() {
             />
           </Card>
         </section>
-
-        {/* Add member & Family settings */}
-        <div className="mt-10 grid gap-6 pb-10 lg:grid-cols-2 lg:items-start">
-          <section>
-            <SectionHeading
-              title="Add member"
-              description="Add someone to your subscription."
-            />
-
-            <Card className="mt-4 border-white/10 bg-white/[0.04] shadow-none">
-              <AddMemberForm action={addMember} />
-            </Card>
-          </section>
-
-          <section>
-            <SectionHeading
-              title="Family settings"
-              description="Customize the name and photo shown to your members."
-            />
-
-            <Card className="mt-4 border-white/10 bg-white/[0.04] shadow-none">
-              <FamilySettingsForm
-                action={updateFamilySettings}
-                familyName={subscription.familyName ?? ""}
-                photoUrl={subscription.photoUrl ?? ""}
-              />
-            </Card>
-          </section>
-        </div>
       </div>
     </main>
   );

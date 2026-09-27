@@ -1,7 +1,12 @@
-import type { ReactNode } from "react";
-import { Button, MerioMark } from "@/components/ui";
-import { Icon } from "@/components/icon";
+import { Badge, Button, MerioMark } from "@/components/ui";
 import { getDemoUrl } from "@/lib/demo";
+
+const SAMPLE_LEDGER = [
+  { name: "Alex", amount: "€3.00", paid: true },
+  { name: "Sam", amount: "€3.00", paid: true },
+  { name: "Jordan", amount: "€3.00", paid: false },
+  { name: "Maya", amount: "€3.00", paid: true },
+];
 
 export default function Home() {
   const demoUrl = getDemoUrl();
@@ -9,104 +14,84 @@ export default function Home() {
   return (
     <div className="flex flex-1 flex-col">
       <header className="border-b border-border">
-        <nav className="mx-auto flex w-full max-w-5xl items-center justify-between px-6 py-4">
+        <nav className="mx-auto flex w-full max-w-4xl items-center justify-between px-6 py-4">
           <div className="flex items-center gap-2.5">
-            <MerioMark className="h-7 w-7 text-black" />
-            <span className="text-lg font-bold tracking-tight">Merio</span>
+            <MerioMark className="h-7 w-7" />
+            <span className="font-display text-xl font-medium">Merio</span>
           </div>
-          <Button href="/dashboard" variant="secondary" className="px-4">
-            Dashboard
+
+          <Button href="/dashboard" variant="ghost" size="sm">
+            Sign in
           </Button>
         </nav>
       </header>
 
-      <main className="flex flex-1 flex-col">
-        <section className="relative overflow-hidden">
-          <div className="pointer-events-none absolute -top-48 left-1/2 h-96 w-[44rem] -translate-x-1/2 rounded-full bg-brand/15 blur-3xl" />
-          <div className="relative mx-auto flex w-full max-w-5xl flex-col items-center px-6 py-24 text-center sm:py-32">
-            <span className="inline-flex items-center gap-2 rounded-full border border-border bg-surface px-3.5 py-1.5 text-xs font-semibold text-muted">
-              <span className="h-2 w-2 rounded-full bg-brand" />
-              Shared subscription payments, made simple
-            </span>
+      <main className="mx-auto grid w-full max-w-4xl flex-1 content-center items-center gap-12 px-6 py-16 md:grid-cols-[1.1fr_1fr] md:py-24">
+        <section>
+          <h1 className="font-display text-4xl font-medium leading-tight sm:text-5xl">
+            Who&apos;s paid for the family plan this month?
+          </h1>
 
-            <h1 className="mt-6 max-w-2xl text-balance text-4xl font-bold tracking-tight sm:text-6xl">
-              Split your subscription,{" "}
-              <span className="text-brand">effortlessly</span>.
-            </h1>
+          <p className="mt-5 max-w-md text-lg leading-8 text-muted">
+            Merio keeps the answer in one place. Everyone gets a monthly
+            payment and their own link to mark it paid, and people who
+            haven&apos;t paid get a reminder email, so you don&apos;t have to
+            chase them in the group chat.
+          </p>
 
-            <p className="mt-6 max-w-xl text-balance text-lg leading-8 text-muted">
-              Invite your friends, generate monthly payments automatically, and
-              know exactly who&apos;s paid — without the awkward group-chat
-              math.
-            </p>
-
-            <div className="mt-10 flex flex-col gap-3 sm:flex-row">
-              <Button href="/dashboard">Open dashboard</Button>
-              {demoUrl ? (
-                <Button href={demoUrl} variant="secondary">
-                  Try the live demo
-                </Button>
-              ) : (
+          <div className="mt-8 flex flex-wrap gap-3">
+            {demoUrl ? (
+              <>
+                <Button href={demoUrl}>Try the demo</Button>
                 <Button href="/dashboard" variant="secondary">
-                  Learn how it works
+                  Sign in
                 </Button>
-              )}
-            </div>
+              </>
+            ) : (
+              <Button href="/dashboard">Open the dashboard</Button>
+            )}
           </div>
         </section>
 
-        <section className="border-t border-border bg-surface">
-          <div className="mx-auto grid w-full max-w-5xl gap-4 px-6 py-16 sm:grid-cols-3">
-            <Feature
-              icon={
-                <Icon name="clock" className="h-5 w-5" />
-              }
-              title="Automatic billing"
-              description="Payments are generated every month on schedule — no reminders needed."
-            />
-            <Feature
-              icon={
-                <Icon name="arrowRight" className="h-5 w-5" />
-              }
-              title="Shareable links"
-              description="Each member gets a personal link to see their share and confirm payment."
-            />
-            <Feature
-              icon={
-                <Icon name="brush" className="h-5 w-5" />
-              }
-              title="Track who's paid"
-              description="See paid and pending at a glance so everyone stays accountable."
-            />
-          </div>
-        </section>
+        <figure
+          aria-label="Example of a month in Merio"
+          className="rounded-md border border-border bg-surface"
+        >
+          <figcaption className="flex items-baseline justify-between border-b border-border px-5 py-3">
+            <span className="font-display text-lg font-medium">
+              Spotify Family
+            </span>
+            <span className="font-mono text-xs text-muted">15 Mar – 15 Apr</span>
+          </figcaption>
+
+          <ul className="divide-y divide-border">
+            {SAMPLE_LEDGER.map((row) => (
+              <li
+                key={row.name}
+                className="flex items-center justify-between px-5 py-3 text-sm"
+              >
+                <span>{row.name}</span>
+                <span className="flex items-center gap-4">
+                  <span className="font-mono tabular-nums">{row.amount}</span>
+                  <Badge tone={row.paid ? "success" : "pending"}>
+                    {row.paid ? "Paid" : "Owes"}
+                  </Badge>
+                </span>
+              </li>
+            ))}
+          </ul>
+
+          <p className="border-t border-border px-5 py-3 font-mono text-xs text-muted">
+            Reminder to Jordan sent 22 Mar
+          </p>
+        </figure>
       </main>
 
       <footer className="border-t border-border">
-        <div className="mx-auto w-full max-w-5xl px-6 py-8 text-sm text-muted">
-          Built for friends who share one plan.
-        </div>
+        <p className="mx-auto w-full max-w-4xl px-6 py-6 text-sm text-muted">
+          Merio tracks who has paid. It doesn&apos;t move any money.
+        </p>
       </footer>
-    </div>
-  );
-}
-
-function Feature({
-  icon,
-  title,
-  description,
-}: {
-  icon: ReactNode;
-  title: string;
-  description: string;
-}) {
-  return (
-    <div className="rounded-2xl border border-border bg-background p-6">
-      <div className="flex h-10 w-10 items-center justify-center rounded-full bg-brand/15 text-brand">
-        {icon}
-      </div>
-      <h2 className="mt-4 font-semibold">{title}</h2>
-      <p className="mt-1.5 text-sm leading-6 text-muted">{description}</p>
     </div>
   );
 }

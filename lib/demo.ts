@@ -4,22 +4,15 @@ import { eq, sql } from "drizzle-orm";
 
 import { db } from "@/db";
 import { members, payments, subscriptions, users } from "@/db/schema";
+import { isDemoMode } from "@/lib/demo-mode";
 import { getCurrentPeriod, getPeriod, toDateString } from "@/lib/periods";
 
-/**
- * Demo mode runs the app as a public sandbox: anyone can enter the dashboard
- * without a password, emails are logged instead of sent, and the data is
- * reset nightly. It must only ever be enabled on a deployment with its own
- * database, never on the one holding real data.
- */
-export function isDemoMode(): boolean {
-  return process.env.DEMO_MODE === "true";
-}
+export { isDemoMode };
 
 /** Public URL of the demo deployment, linked from the real site's landing page. */
 export function getDemoUrl(): string | null {
   if (isDemoMode()) {
-    return "/login";
+    return "/demo";
   }
 
   return process.env.DEMO_URL ?? null;

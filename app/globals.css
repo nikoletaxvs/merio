@@ -1,17 +1,49 @@
 @import "tailwindcss";
 
+/*
+ * Ledger palette: warm paper, dark ink, hairline rules. Colour carries
+ * meaning only: green = paid, ochre = pending, brick = error/destructive.
+ * Components use these tokens, never raw colours, so dark mode is just a
+ * second set of values.
+ */
 :root {
-  --background: #fafafa;
-  --surface: #ffffff;
-  --surface-muted: #f4f4f5;
-  --foreground: #18181b;
-  --muted: #71717a;
-  --border: #e4e4e7;
-  --brand: #6d5bd0;
-  --brand-hover: #7f6fe0;
-  --brand-soft: #ece8fb;
-  --warning: #d97706;
-  --warning-soft: #fef3c7;
+  color-scheme: light;
+
+  --background: #f5f1e8;
+  --surface: #fffcf6;
+  --surface-muted: #ece6d9;
+  --foreground: #1f1c17;
+  --muted: #6e665a;
+  --border: #ddd5c6;
+  --border-strong: #bfb5a2;
+
+  --accent: #2f6b4f;
+  --accent-soft: #e1ebdf;
+  --pending: #9a5f0c;
+  --pending-soft: #f4e6c6;
+  --danger: #a8321f;
+  --danger-soft: #f6e0da;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    color-scheme: dark;
+
+    --background: #171512;
+    --surface: #1f1c18;
+    --surface-muted: #2a2621;
+    --foreground: #eee8dc;
+    --muted: #a39a8b;
+    --border: #36312a;
+    --border-strong: #4d463c;
+
+    --accent: #86bf9d;
+    --accent-soft: rgba(134, 191, 157, 0.13);
+    --pending: #e2a64e;
+    --pending-soft: rgba(226, 166, 78, 0.13);
+    --danger: #e67a64;
+    --danger-soft: rgba(230, 122, 100, 0.13);
+  }
 }
 
 @theme inline {
@@ -21,29 +53,17 @@
   --color-foreground: var(--foreground);
   --color-muted: var(--muted);
   --color-border: var(--border);
-  --color-brand: var(--brand);
-  --color-brand-hover: var(--brand-hover);
-  --color-brand-soft: var(--brand-soft);
-  --color-warning: var(--warning);
-  --color-warning-soft: var(--warning-soft);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
+  --color-border-strong: var(--border-strong);
+  --color-accent: var(--accent);
+  --color-accent-soft: var(--accent-soft);
+  --color-pending: var(--pending);
+  --color-pending-soft: var(--pending-soft);
+  --color-danger: var(--danger);
+  --color-danger-soft: var(--danger-soft);
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #09090b;
-    --surface: #161619;
-    --surface-muted: #1f1f24;
-    --foreground: #fafafa;
-    --muted: #a1a1aa;
-    --border: #27272a;
-    --brand: #8b7be6;
-    --brand-hover: #9d8ff0;
-    --brand-soft: rgba(139, 123, 230, 0.16);
-    --warning: #f59e0b;
-    --warning-soft: rgba(245, 158, 11, 0.16);
-  }
+  --font-sans: var(--font-plex-sans);
+  --font-mono: var(--font-plex-mono);
+  --font-display: var(--font-fraunces);
 }
 
 body {
@@ -53,47 +73,7 @@ body {
   -webkit-font-smoothing: antialiased;
 }
 
-.page-glow::before {
-  content: "";
-  position: fixed;
-  inset: 0;
-  background:
-    radial-gradient(700px circle at 12% -5%, rgba(109, 91, 208, 0.14), transparent 60%),
-    radial-gradient(900px circle at 88% 8%, rgba(139, 123, 230, 0.08), transparent 60%);
-  pointer-events: none;
-  z-index: 0;
-}
-
-.page-glow > * {
-  position: relative;
-  z-index: 1;
-}
-
 ::selection {
-  background: var(--brand);
-  color: #000;
-}
-
-* {
-  -webkit-tap-highlight-color: transparent;
-}
-
-::-webkit-scrollbar {
-  width: 10px;
-  height: 10px;
-}
-
-::-webkit-scrollbar-thumb {
-  background-color: rgba(255, 255, 255, 0.08);
-  border-radius: 999px;
-  border: 2px solid transparent;
-  background-clip: content-box;
-}
-
-::-webkit-scrollbar-thumb:hover {
-  background-color: rgba(255, 255, 255, 0.16);
-}
-
-::-webkit-scrollbar-track {
-  background: transparent;
+  background: var(--foreground);
+  color: var(--background);
 }

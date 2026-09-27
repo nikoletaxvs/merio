@@ -1,7 +1,7 @@
 "use client";
 
 import { useActionState } from "react";
-import { Button, Input, Label } from "@/components/ui";
+import { Button, FormError, Input, Label } from "@/components/ui";
 import { login, type LoginState } from "./actions";
 
 export default function LoginForm() {
@@ -13,10 +13,10 @@ export default function LoginForm() {
   return (
     <form
       action={formAction}
-      className="mt-8 rounded-2xl border border-white/10 bg-white/[0.04] p-6 shadow-lg shadow-black/30"
+      className="mt-8 rounded-md border border-border bg-surface p-6"
     >
       <div>
-        <Label htmlFor="password" className="text-xs text-white/60">
+        <Label htmlFor="password">
           Owner password
         </Label>
 
@@ -32,12 +32,9 @@ export default function LoginForm() {
       </div>
 
       {state?.error && (
-        <p
-          role="alert"
-          className="mt-3 rounded-lg bg-red-500/10 px-3 py-2 text-sm text-red-300 ring-1 ring-red-500/20"
-        >
-          {state.error}
-        </p>
+        <div className="mt-3">
+          <FormError>{state.error}</FormError>
+        </div>
       )}
 
       <Button type="submit" disabled={isPending} className="mt-5 w-full">

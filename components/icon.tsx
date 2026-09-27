@@ -7,42 +7,11 @@ type IconDefinition = {
 };
 
 const icons = {
-  arrowRight: {
-    viewBox: "0 0 24 24",
-    strokeWidth: 2,
-    body: (
-      <>
-        <path d="M5 12h14" />
-        <path d="m12 5 7 7-7 7" />
-      </>
-    ),
-  },
   bell: {
     viewBox: "0 0 20 20",
     strokeWidth: 1.4,
     body: (
       <path d="M10 3a4.5 4.5 0 0 0-4.5 4.5c0 3.6-1.5 5-1.5 5h12s-1.5-1.4-1.5-5A4.5 4.5 0 0 0 10 3Zm-1.8 12a2 2 0 0 0 3.6 0" />
-    ),
-  },
-  brush: {
-    viewBox: "0 0 24 24",
-    strokeWidth: 2,
-    body: (
-      <>
-        <path d="M9 11 3 17v4h4l6-6" />
-        <path d="M10.8 12.2 20.6 2.4a1.9 1.9 0 0 1 2.7 0l.3.3a1.9 1.9 0 0 1 0 2.7L13.8 14.2" />
-        <path d="m9 11 4 4" />
-      </>
-    ),
-  },
-  calendar: {
-    viewBox: "0 0 20 20",
-    strokeWidth: 1.6,
-    body: (
-      <>
-        <rect x="3.5" y="5" width="13" height="11" rx="2.5" />
-        <path d="M3.5 8.5h13M7 3v3m6-3v3" />
-      </>
     ),
   },
   check: {
@@ -80,11 +49,6 @@ const icons = {
       </>
     ),
   },
-  euro: {
-    viewBox: "0 0 20 20",
-    strokeWidth: 1.7,
-    body: <path d="M12.5 4.5a5.5 5.5 0 1 0 0 11M4.5 8.5h6m-6 3h6" />,
-  },
   logout: {
     viewBox: "0 0 20 20",
     strokeWidth: 1.5,
@@ -96,13 +60,6 @@ const icons = {
     viewBox: "0 0 20 20",
     strokeWidth: 1.5,
     body: <path d="M12.8 3.7l3.5 3.5L6.5 17H3v-3.5l9.8-9.8Z" />,
-  },
-  refresh: {
-    viewBox: "0 0 20 20",
-    strokeWidth: 1.6,
-    body: (
-      <path d="M15.5 8A6 6 0 0 0 5 6.2M4.5 12a6 6 0 0 0 10.5 1.8M15.8 4v3.5h-3.5M4.2 16v-3.5h3.5" />
-    ),
   },
   trash: {
     viewBox: "0 0 20 20",

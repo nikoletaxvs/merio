@@ -329,47 +329,6 @@ export async function updateFamilySettings(
   }
 }
 
-export async function createSubscription(
-  _prev: ActionState,
-  formData: FormData,
-): Promise<ActionState> {
-  const denied = await guard();
-
-  if (denied) {
-    return denied;
-  }
-
-  const name = formData.get("name");
-  const amountCents = formData.get("amountCents");
-  const startDate = formData.get("startDate");
-  const generationDay = formData.get("generationDay");
-
-  if (
-    typeof name !== "string" ||
-    typeof amountCents !== "string" ||
-    typeof startDate !== "string" ||
-    typeof generationDay !== "string"
-  ) {
-    return { error: "Invalid form data." };
-  }
-
-  try {
-    await db.insert(subscriptions).values({
-      ownerId: 1,
-      name,
-      amountCents: Number(amountCents),
-      startDate,
-      generationDay: Number(generationDay),
-    });
-
-    revalidatePath("/dashboard");
-
-    return null;
-  } catch {
-    return { error: "Subscription couldn't be created. Try again." };
-  }
-}
-
 export async function addMember(
   _prev: ActionState,
   formData: FormData,
