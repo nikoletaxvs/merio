@@ -32,13 +32,11 @@ function normalizeDate(value) {
 
 function getCurrentPeriod(startDate, today = new Date()) {
   const start = parseDate(startDate);
-  const startDay = start.getDate();
 
+  // Keep in sync with periodIndex in lib/periods.ts.
   let n =
     (today.getFullYear() - start.getFullYear()) * 12 +
     (today.getMonth() - start.getMonth());
-
-  if (today.getDate() < startDay) n -= 1;
 
   let periodStart = addMonths(startDate, n);
   if (today < parseDate(periodStart)) {

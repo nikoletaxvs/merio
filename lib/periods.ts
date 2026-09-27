@@ -41,16 +41,13 @@ export function getNextPeriodStart(
 
 function periodIndex(date: Date, startDate: string): number {
   const start = parseDate(startDate);
-  const startDay = start.getDate();
 
   let n =
     (date.getFullYear() - start.getFullYear()) * 12 +
     (date.getMonth() - start.getMonth());
 
-  if (date.getDate() < startDay) {
-    n -= 1;
-  }
-
+  // Compare against the clamped period start (e.g. Feb 28 for a Jan 31
+  // start), not the raw start day, or short months roll over a day late.
   if (date < parseDate(addMonths(startDate, n))) {
     n -= 1;
   }

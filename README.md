@@ -1,5 +1,7 @@
 # Merio
 
+[![CI](https://github.com/nikoletaxvs/merio/actions/workflows/ci.yml/badge.svg)](https://github.com/nikoletaxvs/merio/actions/workflows/ci.yml)
+
 **Shared subscription payments, made simple.**
 
 Merio splits a shared subscription — like a Spotify family plan — between the
@@ -78,6 +80,13 @@ Open [http://localhost:3000](http://localhost:3000).
 | `npm run build` | Production build |
 | `npm run start` | Serve the production build |
 | `npm run lint` | ESLint |
+| `npm run typecheck` | Generate Next route types, then `tsc --noEmit` |
+| `npm test` | Vitest unit tests (`npm run test:watch` to watch) |
+
+CI runs lint, typecheck, and tests on every push to `main` and every PR
+(`.github/workflows/ci.yml`). Unit tests cover the pure logic where bugs
+hide: billing-period date math (month-end clamping, leap years, year
+boundaries), the reminder cadence, and the cron auth check.
 
 ---
 
