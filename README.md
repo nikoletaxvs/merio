@@ -9,7 +9,7 @@ people who actually use it. The owner adds members, Merio generates a payment
 for each of them every month, and everyone gets a personal link to confirm what
 they owe. No group-chat math, no chasing.
 
-🌐 **Live app:** https://merio-puce.vercel.app
+🌐 **Live app:** https://merio-demo-g4ev63ehi-merio1.vercel.app/dashboard
 
 ---
 
@@ -34,15 +34,15 @@ they owe. No group-chat math, no chasing.
 
 ## Stack
 
-| Piece | Choice |
-| --- | --- |
-| Framework | Next.js 16.3 (App Router) + React 19.2 |
-| Language | TypeScript (strict) |
-| Styling | Tailwind CSS v4 (`@theme inline` tokens, light/dark) |
-| Database | PostgreSQL via Drizzle ORM + `postgres` (postgres.js) |
-| Email | Nodemailer over Gmail SMTP |
-| Auth | Hand-rolled HMAC-SHA256 session cookie (no auth library) |
-| Hosting | Vercel, with Vercel Cron for billing jobs |
+| Piece     | Choice                                                   |
+| --------- | -------------------------------------------------------- |
+| Framework | Next.js 16.3 (App Router) + React 19.2                   |
+| Language  | TypeScript (strict)                                      |
+| Styling   | Tailwind CSS v4 (`@theme inline` tokens, light/dark)     |
+| Database  | PostgreSQL via Drizzle ORM + `postgres` (postgres.js)    |
+| Email     | Nodemailer over Gmail SMTP                               |
+| Auth      | Hand-rolled HMAC-SHA256 session cookie (no auth library) |
+| Hosting   | Vercel, with Vercel Cron for billing jobs                |
 
 ## Features
 
@@ -74,14 +74,14 @@ Nothing works without `DATABASE_URL` and `AUTH_SECRET` — see the table below.
 
 Open [http://localhost:3000](http://localhost:3000).
 
-| Script | Description |
-| --- | --- |
-| `npm run dev` | Start the dev server |
-| `npm run build` | Production build |
-| `npm run start` | Serve the production build |
-| `npm run lint` | ESLint |
-| `npm run typecheck` | Generate Next route types, then `tsc --noEmit` |
-| `npm test` | Vitest unit tests (`npm run test:watch` to watch) |
+| Script              | Description                                       |
+| ------------------- | ------------------------------------------------- |
+| `npm run dev`       | Start the dev server                              |
+| `npm run build`     | Production build                                  |
+| `npm run start`     | Serve the production build                        |
+| `npm run lint`      | ESLint                                            |
+| `npm run typecheck` | Generate Next route types, then `tsc --noEmit`    |
+| `npm test`          | Vitest unit tests (`npm run test:watch` to watch) |
 
 CI runs lint, typecheck, and tests on every push to `main` and every PR
 (`.github/workflows/ci.yml`). Unit tests cover the pure logic where bugs
@@ -96,20 +96,20 @@ Copy `.env.example` to `.env` for development. Use `.env` rather than
 `.env.local`: Next.js reads both, but `drizzle-kit` and the seed script only
 load `.env`. Real env files are gitignored; `.env.example` is committed.
 
-| Variable | Required | Purpose |
-| --- | --- | --- |
-| `DATABASE_URL` | yes | PostgreSQL connection string, used by the app, Drizzle Kit, and the seed script. |
-| `AUTH_SECRET` | yes | HMAC-SHA256 secret used to sign session cookies and hash the owner password. The app throws on startup if unset. |
-| `OWNER_PASSWORD` | yes | The single shared dashboard password. If unset, login always fails. |
-| `CRON_SECRET` | yes | Bearer token guarding the cron endpoints. Vercel sends it automatically. |
-| `GMAIL_USER` | yes | Gmail account used to send mail (also the `From:` address). |
-| `GMAIL_APP_PASSWORD` | yes | Google **app password** for `GMAIL_USER`, not the account password. |
-| `DEMO_MODE` | no | `true` on the **demo deployment only** — see [Demo deployment](#demo-deployment). |
-| `DEMO_URL` | no | On the real deployment, the demo's `/login` URL; adds a "Try the live demo" button to the landing page. |
-| `APP_URL` | no | Explicit public URL used to build payment links in emails. Trailing slashes are stripped. |
-| `VERCEL_PROJECT_PRODUCTION_URL` | no | Set automatically on Vercel; the preferred fallback for resolving the site URL. |
-| `VERCEL_URL` | no | Secondary Vercel fallback (per-deployment URL). |
-| `NODE_ENV` | no | Standard Next.js variable; toggles the `secure` flag on the session cookie. |
+| Variable                        | Required | Purpose                                                                                                          |
+| ------------------------------- | -------- | ---------------------------------------------------------------------------------------------------------------- |
+| `DATABASE_URL`                  | yes      | PostgreSQL connection string, used by the app, Drizzle Kit, and the seed script.                                 |
+| `AUTH_SECRET`                   | yes      | HMAC-SHA256 secret used to sign session cookies and hash the owner password. The app throws on startup if unset. |
+| `OWNER_PASSWORD`                | yes      | The single shared dashboard password. If unset, login always fails.                                              |
+| `CRON_SECRET`                   | yes      | Bearer token guarding the cron endpoints. Vercel sends it automatically.                                         |
+| `GMAIL_USER`                    | yes      | Gmail account used to send mail (also the `From:` address).                                                      |
+| `GMAIL_APP_PASSWORD`            | yes      | Google **app password** for `GMAIL_USER`, not the account password.                                              |
+| `DEMO_MODE`                     | no       | `true` on the **demo deployment only** — see [Demo deployment](#demo-deployment).                                |
+| `DEMO_URL`                      | no       | On the real deployment, the demo's `/login` URL; adds a "Try the live demo" button to the landing page.          |
+| `APP_URL`                       | no       | Explicit public URL used to build payment links in emails. Trailing slashes are stripped.                        |
+| `VERCEL_PROJECT_PRODUCTION_URL` | no       | Set automatically on Vercel; the preferred fallback for resolving the site URL.                                  |
+| `VERCEL_URL`                    | no       | Secondary Vercel fallback (per-deployment URL).                                                                  |
+| `NODE_ENV`                      | no       | Standard Next.js variable; toggles the `secure` flag on the session cookie.                                      |
 
 ### Resolving the site URL
 
@@ -128,12 +128,12 @@ want emailed links to resolve to your dev server.
 Schema lives in `db/schema.ts`, migrations in `drizzle/`, configured by
 `drizzle.config.ts`.
 
-| Table | Purpose |
-| --- | --- |
-| `users` | One row per person (owner and members) |
-| `subscriptions` | The shared plan: amount, period start, generation day, family name/photo |
-| `members` | Which user belongs to which subscription, plus their unique payment `token` |
-| `payments` | One row per member per period: amount, period bounds, status, `paid_at` |
+| Table           | Purpose                                                                     |
+| --------------- | --------------------------------------------------------------------------- |
+| `users`         | One row per person (owner and members)                                      |
+| `subscriptions` | The shared plan: amount, period start, generation day, family name/photo    |
+| `members`       | Which user belongs to which subscription, plus their unique payment `token` |
+| `payments`      | One row per member per period: amount, period bounds, status, `paid_at`     |
 
 Unique indexes prevent duplicate membership and duplicate payments for the same
 period (`unique(member_id, period_start)`).
@@ -197,16 +197,16 @@ proxy.ts                      Next 16 proxy — protects /dashboard
 
 ### Routes
 
-| Route | Access | Notes |
-| --- | --- | --- |
-| `/` | public | Marketing page |
-| `/login` | public | Owner sign-in |
-| `/dashboard` | session cookie | Forced dynamic |
-| `/pay/[token]` | possession of the token | Forced dynamic |
-| `GET /api/payments/generate` | `Bearer CRON_SECRET` | Vercel cron, daily 00:00 UTC |
-| `GET /api/payments/remind` | `Bearer CRON_SECRET` | Vercel cron, daily 09:00 UTC. Optional `?date=YYYY-MM-DD` simulates another day |
-| `GET /api/demo/reset` | `Bearer CRON_SECRET`, demo only | Vercel cron, daily 03:00 UTC. 404 when `DEMO_MODE` is off |
-| `GET /api/test-email` | `Bearer CRON_SECRET` | Sends a test email to `GMAIL_USER` |
+| Route                        | Access                          | Notes                                                                           |
+| ---------------------------- | ------------------------------- | ------------------------------------------------------------------------------- |
+| `/`                          | public                          | Marketing page                                                                  |
+| `/login`                     | public                          | Owner sign-in                                                                   |
+| `/dashboard`                 | session cookie                  | Forced dynamic                                                                  |
+| `/pay/[token]`               | possession of the token         | Forced dynamic                                                                  |
+| `GET /api/payments/generate` | `Bearer CRON_SECRET`            | Vercel cron, daily 00:00 UTC                                                    |
+| `GET /api/payments/remind`   | `Bearer CRON_SECRET`            | Vercel cron, daily 09:00 UTC. Optional `?date=YYYY-MM-DD` simulates another day |
+| `GET /api/demo/reset`        | `Bearer CRON_SECRET`, demo only | Vercel cron, daily 03:00 UTC. 404 when `DEMO_MODE` is off                       |
+| `GET /api/test-email`        | `Bearer CRON_SECRET`            | Sends a test email to `GMAIL_USER`                                              |
 
 ### Auth
 
