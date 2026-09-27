@@ -1,5 +1,6 @@
 import type { ReactNode } from "react";
 import { Button, MerioMark } from "@/components/ui";
+import { Icon } from "@/components/icon";
 
 export default function Home() {
   return (
@@ -49,55 +50,21 @@ export default function Home() {
           <div className="mx-auto grid w-full max-w-5xl gap-4 px-6 py-16 sm:grid-cols-3">
             <Feature
               icon={
-                <svg
-                  viewBox="0 0 24 24"
-                  className="h-5 w-5"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="2"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                >
-                  <path d="M12 6v6l4 2" />
-                  <circle cx="12" cy="12" r="10" />
-                </svg>
+                <Icon name="clock" className="h-5 w-5" />
               }
               title="Automatic billing"
               description="Payments are generated every month on schedule — no reminders needed."
             />
             <Feature
               icon={
-                <svg
-                  viewBox="0 0 24 24"
-                  className="h-5 w-5"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="2"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                >
-                  <path d="M5 12h14" />
-                  <path d="m12 5 7 7-7 7" />
-                </svg>
+                <Icon name="arrowRight" className="h-5 w-5" />
               }
               title="Shareable links"
               description="Each member gets a personal link to see their share and confirm payment."
             />
             <Feature
               icon={
-                <svg
-                  viewBox="0 0 24 24"
-                  className="h-5 w-5"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="2"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                >
-                  <path d="M9 11 3 17v4h4l6-6" />
-                  <path d="M10.8 12.2 20.6 2.4a1.9 1.9 0 0 1 2.7 0l.3.3a1.9 1.9 0 0 1 0 2.7L13.8 14.2" />
-                  <path d="m9 11 4 4" />
-                </svg>
+                <Icon name="brush" className="h-5 w-5" />
               }
               title="Track who's paid"
               description="See paid and pending at a glance so everyone stays accountable."

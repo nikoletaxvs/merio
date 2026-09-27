@@ -2,6 +2,7 @@
 
 import { useState, useTransition } from "react";
 import { Badge, FormError, Input, Label } from "@/components/ui";
+import { Icon } from "@/components/icon";
 import { formatDateLong, formatPeriod } from "@/lib/periods";
 import CopyPaymentLinkButton from "./CopyPaymentLink";
 
@@ -146,22 +147,12 @@ export default function MemberRow({
             <span className="text-sm text-white/35">No payment yet</span>
           )}
 
-          <svg
-            viewBox="0 0 20 20"
-            fill="none"
-            aria-hidden="true"
+          <Icon
+            name="chevronDown"
             className={`h-4 w-4 text-white/40 transition-transform duration-200 ${
               open ? "rotate-180" : ""
             }`}
-          >
-            <path
-              d="M5 7.5 10 12.5 15 7.5"
-              stroke="currentColor"
-              strokeWidth="1.8"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-            />
-          </svg>
+          />
         </div>
       </button>
 
@@ -209,23 +200,7 @@ export default function MemberRow({
                 />
 
                 <PillButton onClick={() => setEditing((value) => !value)}>
-                  <svg viewBox="0 0 20 20" fill="none" aria-hidden="true" className="h-3 w-3">
-                    {editing ? (
-                      <path
-                        d="m5 5 10 10M15 5 5 15"
-                        stroke="currentColor"
-                        strokeWidth="1.8"
-                        strokeLinecap="round"
-                      />
-                    ) : (
-                      <path
-                        d="M12.8 3.7l3.5 3.5L6.5 17H3v-3.5l9.8-9.8Z"
-                        stroke="currentColor"
-                        strokeWidth="1.5"
-                        strokeLinejoin="round"
-                      />
-                    )}
-                  </svg>
+                  <Icon name={editing ? "close" : "pencil"} className="h-3 w-3" />
                   {editing ? "Close" : "Edit"}
                 </PillButton>
 
@@ -251,15 +226,7 @@ export default function MemberRow({
                   </>
                 ) : (
                   <PillButton onClick={() => setConfirmingDelete(true)}>
-                    <svg viewBox="0 0 20 20" fill="none" aria-hidden="true" className="h-3 w-3">
-                      <path
-                        d="M4 6h12M8 6V4.5A1.5 1.5 0 0 1 9.5 3h1A1.5 1.5 0 0 1 12 4.5V6m2.5 0-.7 9.1a2 2 0 0 1-2 1.9H8.2a2 2 0 0 1-2-1.9L5.5 6"
-                        stroke="currentColor"
-                        strokeWidth="1.4"
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                      />
-                    </svg>
+                    <Icon name="trash" className="h-3 w-3" />
                     Remove
                   </PillButton>
                 )}
@@ -390,15 +357,7 @@ function SubmitRemindButton({
       disabled={disabled}
       className="inline-flex items-center gap-1.5 rounded-full border border-white/10 bg-white/[0.06] px-3.5 py-1.5 text-xs font-semibold text-white transition hover:bg-white/[0.1] active:scale-[0.99] disabled:opacity-50"
     >
-      <svg viewBox="0 0 20 20" fill="none" aria-hidden="true" className="h-3 w-3">
-        <path
-          d="M10 3a4.5 4.5 0 0 0-4.5 4.5c0 3.6-1.5 5-1.5 5h12s-1.5-1.4-1.5-5A4.5 4.5 0 0 0 10 3Zm-1.8 12a2 2 0 0 0 3.6 0"
-          stroke="currentColor"
-          strokeWidth="1.4"
-          strokeLinecap="round"
-          strokeLinejoin="round"
-        />
-      </svg>
+      <Icon name="bell" className="h-3 w-3" />
       Send reminder
     </button>
   );

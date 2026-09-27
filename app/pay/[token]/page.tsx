@@ -2,6 +2,7 @@ import { eq } from "drizzle-orm";
 import { db } from "@/db";
 import { members } from "@/db/schema";
 import { Badge, Button, Card, MerioMark } from "@/components/ui";
+import { Icon } from "@/components/icon";
 import { formatDateLong, formatPeriod, getCurrentPeriod } from "@/lib/periods";
 import { markPaymentAsPaid } from "../actions";
 
@@ -118,20 +119,7 @@ export default async function PaymentPage({ params }: Props) {
               >
                 {isPaid ? (
                   <>
-                    <svg
-                      viewBox="0 0 20 20"
-                      fill="none"
-                      aria-hidden="true"
-                      className="h-3.5 w-3.5"
-                    >
-                      <path
-                        d="M4 10.5 8 14.5 16 6"
-                        stroke="currentColor"
-                        strokeWidth="2"
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                      />
-                    </svg>
+                    <Icon name="check" strokeWidth={2} className="h-3.5 w-3.5" />
                     Paid — thank you
                   </>
                 ) : (
@@ -174,17 +162,11 @@ export default async function PaymentPage({ params }: Props) {
                 <div className="rounded-xl bg-emerald-400/[0.08] p-4 ring-1 ring-emerald-400/20">
                   <div className="flex items-start gap-3">
                     <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-emerald-400/15">
-                      <svg
-                        viewBox="0 0 24 24"
+                      <Icon
+                        name="check"
+                        strokeWidth={2.2}
                         className="h-4 w-4 text-emerald-300"
-                        fill="none"
-                        stroke="currentColor"
-                        strokeWidth="2.5"
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                      >
-                        <path d="M20 6 9 17l-5-5" />
-                      </svg>
+                      />
                     </div>
 
                     <div className="min-w-0">
@@ -231,18 +213,11 @@ export default async function PaymentPage({ params }: Props) {
         ) : (
           <Card className="mt-8 border-white/10 bg-white/[0.04] text-center shadow-none">
             <div className="mx-auto flex h-10 w-10 items-center justify-center rounded-full bg-white/[0.06]">
-              <svg
-                viewBox="0 0 24 24"
+              <Icon
+                name="clock"
+                strokeWidth={1.8}
                 className="h-5 w-5 text-white/40"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="1.8"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-              >
-                <circle cx="12" cy="12" r="9" />
-                <path d="M12 7v5l3 2" />
-              </svg>
+              />
             </div>
 
             <h2 className="mt-4 font-semibold">Not ready yet</h2>

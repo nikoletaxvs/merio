@@ -2,6 +2,7 @@ import { eq } from "drizzle-orm";
 import { db } from "@/db";
 import { subscriptions } from "@/db/schema";
 import { Badge, Card, MerioMark, SectionHeading } from "@/components/ui";
+import { Icon } from "@/components/icon";
 import {
   activateAllPayments,
   addMember,
@@ -122,20 +123,7 @@ export default async function DashboardPage() {
                 title="Sign out"
                 className="flex h-9 w-9 items-center justify-center rounded-full border border-white/10 bg-white/[0.06] text-white/50 transition hover:bg-white/[0.1] hover:text-white"
               >
-                <svg
-                  viewBox="0 0 20 20"
-                  fill="none"
-                  aria-hidden="true"
-                  className="h-4 w-4"
-                >
-                  <path
-                    d="M12.5 6.5V5A1.5 1.5 0 0 0 11 3.5H5A1.5 1.5 0 0 0 3.5 5v10A1.5 1.5 0 0 0 5 16.5h6a1.5 1.5 0 0 0 1.5-1.5v-1.5m2-6.5L18 10l-3 3.5m3-3.5H7.5"
-                    stroke="currentColor"
-                    strokeWidth="1.5"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                  />
-                </svg>
+                <Icon name="logout" className="h-4 w-4" />
               </button>
             </form>
           </div>

@@ -59,9 +59,9 @@ async function selectedOwnerMemberIds(
     return null;
   }
 
-  const allowedIds = new Set(subscription.members.map((member) => member.id));
+  const allowedIds = new Set(subscription.members.map((member) => member.id));//why use set
 
-  return memberIds.filter((id) => allowedIds.has(id));
+  return memberIds.filter((id) => allowedIds.has(id));// why filter here and use set before
 }
 
 export async function logout(): Promise<void> {

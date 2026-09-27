@@ -2,6 +2,7 @@
 
 import { useActionState, useState } from "react";
 import { Card, FormError, Input, Label } from "@/components/ui";
+import { Icon } from "@/components/icon";
 import { formatPeriod } from "@/lib/periods";
 
 export default function OverviewCard({
@@ -143,64 +144,18 @@ export default function OverviewCard({
 
 function EuroIcon() {
   return (
-    <svg
-      viewBox="0 0 20 20"
-      fill="none"
-      aria-hidden="true"
-      className="h-3.5 w-3.5 text-brand"
-    >
-      <path
-        d="M12.5 4.5a5.5 5.5 0 1 0 0 11M4.5 8.5h6m-6 3h6"
-        stroke="currentColor"
-        strokeWidth="1.7"
-        strokeLinecap="round"
-      />
-    </svg>
+    <Icon name="euro" className="h-3.5 w-3.5 text-brand" />
   );
 }
 
 function RefreshIcon() {
   return (
-    <svg
-      viewBox="0 0 20 20"
-      fill="none"
-      aria-hidden="true"
-      className="h-3.5 w-3.5 text-brand"
-    >
-      <path
-        d="M15.5 8A6 6 0 0 0 5 6.2M4.5 12a6 6 0 0 0 10.5 1.8M15.8 4v3.5h-3.5M4.2 16v-3.5h3.5"
-        stroke="currentColor"
-        strokeWidth="1.6"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-      />
-    </svg>
+    <Icon name="refresh" className="h-3.5 w-3.5 text-brand" />
   );
 }
 
 function CalendarIcon() {
   return (
-    <svg
-      viewBox="0 0 20 20"
-      fill="none"
-      aria-hidden="true"
-      className="h-3.5 w-3.5 text-brand"
-    >
-      <rect
-        x="3.5"
-        y="5"
-        width="13"
-        height="11"
-        rx="2.5"
-        stroke="currentColor"
-        strokeWidth="1.6"
-      />
-      <path
-        d="M3.5 8.5h13M7 3v3m6-3v3"
-        stroke="currentColor"
-        strokeWidth="1.6"
-        strokeLinecap="round"
-      />
-    </svg>
+    <Icon name="calendar" className="h-3.5 w-3.5 text-brand" />
   );
 }
