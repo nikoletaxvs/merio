@@ -1,31 +1,47 @@
 "use server";
 
-import { eq } from "drizzle-orm";
+import { and, eq, ne } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
 
 import { db } from "@/db";
-import { payments } from "@/db/schema";
+import { members, payments } from "@/db/schema";
+import { getCurrentPeriod } from "@/lib/periods";
 
-export async function markPaymentAsPaid(paymentId: number) {
-  const payment = await db.query.payments.findFirst({
-    where: eq(payments.id, paymentId),
+// Server actions are public POST endpoints, so never trust a payment id sent
+// by the client. The member's secret token is the only credential: we derive
+// the payment from it on the server, so a token can only settle its own
+// current-period payment.
+export async function markPaymentAsPaid(token: string) {
+  const member = await db.query.members.findFirst({
+    where: eq(members.token, token),
     with: {
-      member: true,
+      subscription: true,
     },
   });
 
-  if (!payment) {
-    throw new Error("Payment not found");
+  if (!member) {
+    throw new Error("Payment link not found");
   }
 
+  const { start: periodStart } = getCurrentPeriod(
+    member.subscription.startDate,
+  );
+
+  // Skip payments that are already paid so a repeat submit keeps the original paidAt.
   await db
     .update(payments)
     .set({
       status: "paid",
       paidAt: new Date(),
     })
-    .where(eq(payments.id, paymentId));
+    .where(
+      and(
+        eq(payments.memberId, member.id),
+        eq(payments.periodStart, periodStart),
+        ne(payments.status, "paid"),
+      ),
+    );
 
   revalidatePath("/dashboard");
-  revalidatePath(`/pay/${payment.member.token}`);
+  revalidatePath(`/pay/${token}`);
 }

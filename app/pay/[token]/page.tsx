@@ -195,7 +195,7 @@ export default async function PaymentPage({ params }: Props) {
                 </div>
 
                 <form
-                  action={markPaymentAsPaid.bind(null, payment.id)}
+                  action={markPaymentAsPaid.bind(null, token)}
                   className="mt-5"
                 >
                   <Button type="submit" className="w-full shadow-lg shadow-brand/25">
