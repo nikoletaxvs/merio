@@ -1,48 +1,30 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getBaseUrl } from "@/lib/base-url";
+import { isAuthorizedCron } from "@/lib/cron-auth";
 import { sendPeriodStartReminders } from "@/app/dashboard/period-reminders";
+import { parseDate, toDateString } from "@/lib/periods";
 
 export async function GET(request: NextRequest) {
-  const authHeader = request.headers.get("authorization");
-
-  if (authHeader !== `Bearer ${process.env.CRON_SECRET}`) {
+  if (!isAuthorizedCron(request)) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
   try {
     const baseUrl = await getBaseUrl();
-    const { searchParams } = new URL(request.url);
-    const dateParam = searchParams.get("date");
-    const hourParam = searchParams.get("hour");
-
-    if (dateParam && hourParam) {
-      return NextResponse.json(
-        { error: "Use either date or hour, not both" },
-        { status: 400 },
-      );
-    }
-
+    // Optional ?date=YYYY-MM-DD pretends "today" is that day, for testing
+    // the reminder cadence without waiting. Reminders only depend on the
+    // date, never the time of day.
+    const dateParam = request.nextUrl.searchParams.get("date");
     let today: Date | undefined;
 
     if (dateParam) {
-      today = new Date(dateParam);
-    } else if (hourParam) {
-      const hour = Number(hourParam);
-      if (!Number.isInteger(hour) || hour < 0 || hour > 23) {
+      today = parseDate(dateParam);
+      if (toDateString(today) !== dateParam) {
         return NextResponse.json(
-          { error: "Invalid hour, expected 0-23" },
+          { error: "Invalid date, expected YYYY-MM-DD" },
           { status: 400 },
         );
       }
-      today = new Date();
-      today.setHours(hour, 0, 0, 0);
-    }
-
-    if (today && isNaN(today.getTime())) {
-      return NextResponse.json(
-        { error: "Invalid date, expected YYYY-MM-DD" },
-        { status: 400 },
-      );
     }
 
     const result = await sendPeriodStartReminders(baseUrl, today);

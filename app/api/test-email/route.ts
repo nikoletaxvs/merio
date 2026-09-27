@@ -1,11 +1,26 @@
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 
+import { isAuthorizedCron } from "@/lib/cron-auth";
 import { sendEmail } from "@/lib/email";
 
-export async function GET() {
+export async function GET(request: NextRequest) {
+  if (!isAuthorizedCron(request)) {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
+
+  const recipient = process.env.GMAIL_USER;
+
+  if (!recipient) {
+    return NextResponse.json(
+      { success: false, error: "GMAIL_USER is not set" },
+      { status: 500 },
+    );
+  }
+
   try {
+    // Sends to the app's own Gmail account, so this can only ever email the owner.
     await sendEmail({
-      to: { email: "owner@example.com", name: "Niko" },
+      to: { email: recipient, name: "Merio" },
       subject: "Merio test",
       html: ` <h2>It works! </h2>
 
