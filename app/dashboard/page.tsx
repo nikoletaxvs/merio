@@ -1,4 +1,5 @@
 import { eq } from "drizzle-orm";
+import Link from "next/link";
 import { db } from "@/db";
 import { subscriptions } from "@/db/schema";
 import { Badge, Card, MerioMark, SectionHeading } from "@/components/ui";
@@ -9,6 +10,7 @@ import {
   deleteMember,
   logout,
   remindMember,
+  resetDemo,
   testCronReminders,
   updateBillingPeriod,
   updateFamilySettings,
@@ -25,6 +27,7 @@ import OverviewCard from "./OverviewCard";
 import PeriodCountdown from "./PeriodCountdown";
 import { getCurrentPeriod } from "@/lib/periods";
 import { requireOwner } from "@/lib/auth";
+import { isDemoMode } from "@/lib/demo";
 
 export const dynamic = "force-dynamic";
 
@@ -84,6 +87,32 @@ export default async function DashboardPage() {
   return (
     <main className="page-glow min-h-screen w-full bg-black text-white">
       <div className="mx-auto w-full max-w-4xl px-5 py-8 sm:px-6 sm:py-10">
+        {isDemoMode() && (
+          <div className="mb-6 flex flex-wrap items-center gap-x-4 gap-y-2 rounded-2xl border border-brand/30 bg-brand/10 px-4 py-3 text-sm">
+            <p className="flex-1 text-white/75">
+              <span className="font-semibold text-white">Demo mode.</span>{" "}
+              Sample data that resets every night. Emails are logged, not sent.
+              See a member&apos;s view at{" "}
+              <Link
+                href="/pay/demo-alex"
+                className="font-medium text-brand underline-offset-2 hover:underline"
+              >
+                /pay/demo-alex
+              </Link>
+              .
+            </p>
+
+            <form action={resetDemo}>
+              <button
+                type="submit"
+                className="rounded-full border border-white/15 px-3 py-1.5 text-xs font-semibold text-white/80 transition hover:bg-white/[0.08] hover:text-white"
+              >
+                Reset data
+              </button>
+            </form>
+          </div>
+        )}
+
         {/* Header */}
         <header>
           <div className="flex items-center gap-3.5">

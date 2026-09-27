@@ -7,6 +7,10 @@
     {
       "path": "/api/payments/remind",
       "schedule": "0 9 * * *"
+    },
+    {
+      "path": "/api/demo/reset",
+      "schedule": "0 3 * * *"
     }
   ]
 }

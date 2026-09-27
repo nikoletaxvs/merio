@@ -64,11 +64,11 @@ they owe. No group-chat math, no chasing.
 
 ```bash
 npm install
+cp .env.example .env   # then fill in real values
 npm run dev
 ```
 
-Environment variables are read from `.env.local` in development — see the
-table below. Nothing works without `DATABASE_URL` and `AUTH_SECRET`.
+Nothing works without `DATABASE_URL` and `AUTH_SECRET` — see the table below.
 
 Open [http://localhost:3000](http://localhost:3000).
 
@@ -83,9 +83,9 @@ Open [http://localhost:3000](http://localhost:3000).
 
 ## Environment variables
 
-Create a `.env.local` file in the project root for development. All of these
-are required in production. `.env*` is gitignored — no example file is
-checked in, so this table is the source of truth.
+Copy `.env.example` to `.env` for development. Use `.env` rather than
+`.env.local`: Next.js reads both, but `drizzle-kit` and the seed script only
+load `.env`. Real env files are gitignored; `.env.example` is committed.
 
 | Variable | Required | Purpose |
 | --- | --- | --- |
@@ -95,6 +95,8 @@ checked in, so this table is the source of truth.
 | `CRON_SECRET` | yes | Bearer token guarding the cron endpoints. Vercel sends it automatically. |
 | `GMAIL_USER` | yes | Gmail account used to send mail (also the `From:` address). |
 | `GMAIL_APP_PASSWORD` | yes | Google **app password** for `GMAIL_USER`, not the account password. |
+| `DEMO_MODE` | no | `true` on the **demo deployment only** — see [Demo deployment](#demo-deployment). |
+| `DEMO_URL` | no | On the real deployment, the demo's `/login` URL; adds a "Try the live demo" button to the landing page. |
 | `APP_URL` | no | Explicit public URL used to build payment links in emails. Trailing slashes are stripped. |
 | `VERCEL_PROJECT_PRODUCTION_URL` | no | Set automatically on Vercel; the preferred fallback for resolving the site URL. |
 | `VERCEL_URL` | no | Secondary Vercel fallback (per-deployment URL). |
@@ -168,13 +170,18 @@ app/
   pay/[token]/                public member payment page
   api/payments/generate/      cron: generate payments
   api/payments/remind/        cron: send reminders
-  api/test-email/             dev-only email smoke test
-components/ui.tsx             shared UI primitives
+  api/test-email/             email smoke test (CRON_SECRET-protected)
+  api/demo/reset/             cron: reseed the demo deployment
+components/
+  ui.tsx                      shared UI primitives
+  icon.tsx                    typed <Icon name="..." /> set
 lib/
   auth.ts                     session cookie helpers
   auth-tokens.ts              HMAC tokens + password check
   base-url.ts                 site URL resolution
-  email.ts                    Nodemailer transporter
+  cron-auth.ts                Bearer CRON_SECRET check for cron routes
+  demo.ts                     demo mode flag + seed/reset
+  email.ts                    Nodemailer transporter (no-op in demo mode)
   periods.ts                  billing period date math (shared client/server)
 proxy.ts                      Next 16 proxy — protects /dashboard
 ```
@@ -188,7 +195,9 @@ proxy.ts                      Next 16 proxy — protects /dashboard
 | `/dashboard` | session cookie | Forced dynamic |
 | `/pay/[token]` | possession of the token | Forced dynamic |
 | `GET /api/payments/generate` | `Bearer CRON_SECRET` | Vercel cron, daily 00:00 UTC |
-| `GET /api/payments/remind` | `Bearer CRON_SECRET` | Vercel cron, daily 09:00 UTC |
+| `GET /api/payments/remind` | `Bearer CRON_SECRET` | Vercel cron, daily 09:00 UTC. Optional `?date=YYYY-MM-DD` simulates another day |
+| `GET /api/demo/reset` | `Bearer CRON_SECRET`, demo only | Vercel cron, daily 03:00 UTC. 404 when `DEMO_MODE` is off |
+| `GET /api/test-email` | `Bearer CRON_SECRET` | Sends a test email to `GMAIL_USER` |
 
 ### Auth
 
@@ -202,21 +211,38 @@ guards `/dashboard`.
 
 ## Deployment
 
-Deployed to Vercel. `vercel.json` registers two daily cron jobs:
+Deployed to Vercel. `vercel.json` registers three daily cron jobs (the demo
+reset is a no-op outside the demo deployment):
 
 ```json
 {
   "crons": [
     { "path": "/api/payments/generate", "schedule": "0 0 * * *" },
-    { "path": "/api/payments/remind", "schedule": "0 9 * * *" }
+    { "path": "/api/payments/remind", "schedule": "0 9 * * *" },
+    { "path": "/api/demo/reset", "schedule": "0 3 * * *" }
   ]
 }
 ```
 
 Set every variable from the table above in the Vercel project. Vercel injects
 `Authorization: Bearer $CRON_SECRET` on cron requests, which is what the
-handlers check. If `CRON_SECRET` is unset the endpoints accept a literal
-`Bearer undefined`, so always set it.
+handlers check. If `CRON_SECRET` is unset the endpoints reject every request.
+
+### Demo deployment
+
+The live app holds real data, so the public demo is a **second Vercel project**
+on the same repo with its own database and `DEMO_MODE=true`. In demo mode:
+
+- `/login` shows an "Enter the demo" button instead of the password form.
+- The database is seeded with a fake family and six months of history on first
+  visit, and wiped and reseeded nightly by `/api/demo/reset` (or the "Reset
+  data" button on the dashboard).
+- `sendEmail` logs instead of sending, so visitors can't email real addresses.
+- Stable member links such as `/pay/demo-alex` show the member's view.
+
+`resetDemoData` refuses to run unless demo mode is on **and** the database is
+empty or owned by the demo account, so a misconfigured flag can't wipe real
+data.
 
 ---
 
@@ -228,8 +254,6 @@ Worth knowing before you extend this:
   a personal tool, not multi-tenant SaaS.
 - **No payment processing.** Members transfer money out-of-band and self-attest.
   Anyone holding a payment link can mark it paid.
-- **`/api/test-email` is unauthenticated** and sends to a hardcoded address. It
-  is a dev leftover — delete or protect it before exposing a deployment.
 - **No rate limiting on `/login`.**
 - `createSubscription` in `app/dashboard/actions.ts` is defined but never
   called.

@@ -8,6 +8,7 @@ import { db } from "@/db";
 import { members, payments, subscriptions, users } from "@/db/schema";
 import { endSession, isAuthenticated } from "@/lib/auth";
 import { getBaseUrl } from "@/lib/base-url";
+import { isDemoMode, resetDemoData } from "@/lib/demo";
 import { generatePayments } from "./payment-generation";
 import { sendPeriodStartReminders, sendReminderToMember } from "./period-reminders";
 
@@ -67,6 +68,15 @@ async function selectedOwnerMemberIds(
 export async function logout(): Promise<void> {
   await endSession();
   redirect("/login");
+}
+
+export async function resetDemo(): Promise<void> {
+  if ((await guard()) || !isDemoMode()) {
+    redirect("/login");
+  }
+
+  await resetDemoData();
+  revalidatePath("/dashboard");
 }
 
 export async function activateAllPayments(

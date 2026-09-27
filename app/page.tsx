@@ -1,8 +1,11 @@
 import type { ReactNode } from "react";
 import { Button, MerioMark } from "@/components/ui";
 import { Icon } from "@/components/icon";
+import { getDemoUrl } from "@/lib/demo";
 
 export default function Home() {
+  const demoUrl = getDemoUrl();
+
   return (
     <div className="flex flex-1 flex-col">
       <header className="border-b border-border">
@@ -39,9 +42,15 @@ export default function Home() {
 
             <div className="mt-10 flex flex-col gap-3 sm:flex-row">
               <Button href="/dashboard">Open dashboard</Button>
-              <Button href="/dashboard" variant="secondary">
-                Learn how it works
-              </Button>
+              {demoUrl ? (
+                <Button href={demoUrl} variant="secondary">
+                  Try the live demo
+                </Button>
+              ) : (
+                <Button href="/dashboard" variant="secondary">
+                  Learn how it works
+                </Button>
+              )}
             </div>
           </div>
         </section>

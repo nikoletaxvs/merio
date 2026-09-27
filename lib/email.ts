@@ -1,6 +1,8 @@
 import "server-only";
 import nodemailer from "nodemailer";
 
+import { isDemoMode } from "@/lib/demo";
+
 let transporter: nodemailer.Transporter | null = null;
 
 function getTransporter() {
@@ -37,6 +39,12 @@ export async function sendEmail({
   html: string;
   text?: string;
 }) {
+  // Demo visitors can add any address as a member, so never send real mail.
+  if (isDemoMode()) {
+    console.log(`[email] demo mode, not sent — to="${to.email}" subject="${subject}"`);
+    return;
+  }
+
   const user = process.env.GMAIL_USER;
 
   const info = await getTransporter().sendMail({
