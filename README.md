@@ -6,7 +6,7 @@ Merio keeps track of who has paid their share of a family subscription. Each
 member gets a monthly payment, a personal link to mark it paid, and reminder
 emails until they do.
 
-**Demo:** [Merio Demo](https://merio-demo.vercel.app)o (sample data,
+**Demo:** [Merio Demo](https://merio-demo.vercel.app) (sample data,
 resets nightly, no emails sent)
 
 <!--
