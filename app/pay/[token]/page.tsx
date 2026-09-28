@@ -1,10 +1,11 @@
 import { eq } from "drizzle-orm";
 import { db } from "@/db";
 import { members } from "@/db/schema";
-import { Amount, Badge, Button, MerioMark } from "@/components/ui";
+import { notFound } from "next/navigation";
+import { Amount, Badge, MerioMark } from "@/components/ui";
 import { Icon } from "@/components/icon";
-import { formatDateLong, formatPeriod, getCurrentPeriod } from "@/lib/periods";
-import { markPaymentAsPaid } from "../actions";
+import { formatPeriod, getCurrentPeriod } from "@/lib/periods";
+import CurrentPayment from "./CurrentPayment";
 
 type Props = {
   params: Promise<{
@@ -27,22 +28,7 @@ export default async function PaymentPage({ params }: Props) {
   });
 
   if (!member) {
-    return (
-      <main className="flex min-h-screen w-full items-center justify-center px-6 py-16">
-        <div className="flex w-full max-w-sm flex-col items-center text-center">
-          <MerioMark className="h-10 w-10" />
-
-          <h1 className="mt-6 font-display text-2xl font-medium">
-            Payment link not found
-          </h1>
-
-          <p className="mt-2 text-sm leading-6 text-muted">
-            This link is invalid or has been removed. Ask whoever runs the
-            subscription for a new one.
-          </p>
-        </div>
-      </main>
-    );
+    notFound();
   }
 
   const { start: periodStart } = getCurrentPeriod(
@@ -56,8 +42,6 @@ export default async function PaymentPage({ params }: Props) {
   const pastPayments = member.payments
     .filter((past) => past.periodStart !== periodStart)
     .sort((a, b) => b.periodStart.localeCompare(a.periodStart));
-
-  const isPaid = payment?.status === "paid";
 
   const familyName = member.subscription.familyName ?? member.subscription.name;
 
@@ -83,82 +67,31 @@ export default async function PaymentPage({ params }: Props) {
           Hi, {member.user.name.split(" ")[0]}.
         </h1>
 
-        <p className="mt-2 text-muted">
-          {payment
-            ? isPaid
-              ? "You're all settled for this month."
-              : "Here's your share for this month."
-            : "Nothing to pay yet."}
-        </p>
-
         {payment ? (
-          <section className="mt-8 rounded-md border border-border bg-surface">
-            <div className="flex items-start justify-between gap-4 px-5 pb-6 pt-5">
-              <div>
-                <p className="text-xs text-muted">Your share</p>
-                <Amount
-                  cents={payment.amountCents}
-                  className="mt-1 block text-4xl font-medium"
-                />
-              </div>
+          <CurrentPayment
+            token={token}
+            payment={{
+              amountCents: payment.amountCents,
+              periodStart: payment.periodStart,
+              periodEnd: payment.periodEnd,
+              status: payment.status,
+              paidAt: payment.paidAt,
+            }}
+          />
+        ) : (
+          <>
+            <p className="mt-2 text-muted">Nothing to pay yet.</p>
 
-              {isPaid && (
-                <span className="mt-1 -rotate-6 rounded-sm border-2 border-accent px-2 py-0.5 font-mono text-sm font-medium uppercase tracking-widest text-accent">
-                  Paid
-                </span>
-              )}
-            </div>
-
-            <dl className="divide-y divide-border border-t border-border text-sm">
-              <div className="flex justify-between gap-4 px-5 py-3">
-                <dt className="text-muted">Period</dt>
-                <dd className="font-mono">
-                  {formatPeriod(payment.periodStart, payment.periodEnd)}
-                </dd>
-              </div>
-
-              <div className="flex justify-between gap-4 px-5 py-3">
-                <dt className="text-muted">Status</dt>
-                <dd>
-                  {isPaid && payment.paidAt ? (
-                    <span className="font-mono">
-                      Paid {formatDateLong(payment.paidAt)}
-                    </span>
-                  ) : (
-                    <Badge tone={isPaid ? "success" : "pending"}>
-                      {isPaid ? "Paid" : "Waiting for you"}
-                    </Badge>
-                  )}
-                </dd>
-              </div>
-            </dl>
-
-            {!isPaid && (
-              <div className="border-t border-border p-5">
-                <form action={markPaymentAsPaid.bind(null, token)}>
-                  <Button type="submit" className="w-full">
-                    I&apos;ve sent{" "}
-                    <Amount cents={payment.amountCents} />
-                  </Button>
-                </form>
-
-                <p className="mt-3 text-xs leading-5 text-muted">
-                  Press this after you&apos;ve made the transfer. It lets the
-                  organiser know you&apos;ve paid; it doesn&apos;t move any money.
+            <section className="mt-8 rounded-md border border-dashed border-border-strong p-5">
+              <div className="flex items-start gap-3">
+                <Icon name="clock" className="mt-0.5 h-4 w-4 shrink-0 text-muted" />
+                <p className="text-sm leading-6 text-muted">
+                  This month&apos;s payment hasn&apos;t been created yet.
+                  You&apos;ll get an email when it is.
                 </p>
               </div>
-            )}
-          </section>
-        ) : (
-          <section className="mt-8 rounded-md border border-dashed border-border-strong p-5">
-            <div className="flex items-start gap-3">
-              <Icon name="clock" className="mt-0.5 h-4 w-4 shrink-0 text-muted" />
-              <p className="text-sm leading-6 text-muted">
-                This month&apos;s payment hasn&apos;t been created yet. You&apos;ll
-                get an email when it is.
-              </p>
-            </div>
-          </section>
+            </section>
+          </>
         )}
 
         {pastPayments.length > 0 && (

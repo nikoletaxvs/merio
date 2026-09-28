@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useTransition } from "react";
+import { useEffect, useOptimistic, useState, useTransition } from "react";
 import { Amount, Badge, Button, FormError, Input, Label } from "@/components/ui";
 import { Icon } from "@/components/icon";
 import { formatDateLong, formatPeriod } from "@/lib/periods";
@@ -41,6 +41,12 @@ export default function MemberRow({
   const [confirmingDelete, setConfirmingDelete] = useState(false);
   const [actionError, setActionError] = useState<string | null>(null);
   const [isPending, startTransition] = useTransition();
+  const [isReminding, startReminding] = useTransition();
+  const [justReminded, setJustReminded] = useState(false);
+  // Hides the row the moment removal is confirmed. If the delete fails, the
+  // transition ends with the server still listing this member, so the
+  // override is dropped and the row comes back with the error.
+  const [removed, markRemoved] = useOptimistic(false, () => true);
 
   const history = [...member.payments].sort(
     (a, b) => b.periodStart.localeCompare(a.periodStart),
@@ -64,12 +70,53 @@ export default function MemberRow({
   }
 
   function handleDelete() {
-    runAction(() => deleteAction(member.id));
+    setActionError(null);
+
+    startTransition(async () => {
+      markRemoved(null);
+
+      try {
+        const result = await deleteAction(member.id);
+
+        if (result.error) {
+          setActionError(result.error);
+        }
+      } catch {
+        setActionError("Couldn't reach the server. The member wasn't removed.");
+      }
+    });
   }
 
+  // Own transition so only this button shows "Sending…", not edit/remove too.
   function handleRemind() {
-    runAction(() => remindAction(member.id));
+    setActionError(null);
+
+    startReminding(async () => {
+      try {
+        const result = await remindAction(member.id);
+
+        if (result.error) {
+          setActionError(result.error);
+        } else {
+          setJustReminded(true);
+        }
+      } catch {
+        setActionError("Couldn't reach the server. No reminder was sent.");
+      }
+    });
   }
+
+  // Show "Sent" for 3 seconds. The cleanup clears the timer if the row
+  // unmounts first (e.g. the member is removed), so it never fires late.
+  useEffect(() => {
+    if (!justReminded) {
+      return;
+    }
+
+    const timer = setTimeout(() => setJustReminded(false), 3000);
+
+    return () => clearTimeout(timer);
+  }, [justReminded]);
 
   function handleUpdate(formData: FormData) {
     runAction(async () => {
@@ -81,6 +128,10 @@ export default function MemberRow({
 
       return result ?? {};
     });
+  }
+
+  if (removed) {
+    return null;
   }
 
   return (
@@ -173,12 +224,24 @@ export default function MemberRow({
                     variant="secondary"
                     size="sm"
                     onClick={handleRemind}
-                    disabled={isPending}
+                    disabled={isReminding || justReminded}
                   >
-                    <Icon name="bell" className="h-3 w-3" />
-                    Send reminder
+                    <Icon
+                      name={justReminded ? "check" : "bell"}
+                      className="h-3 w-3"
+                    />
+                    {isReminding
+                      ? "Sending…"
+                      : justReminded
+                        ? "Reminder sent"
+                        : "Send reminder"}
                   </Button>
                 )}
+
+                {/* Announces the result to screen readers, which don't see the label change. */}
+                <span className="sr-only" aria-live="polite">
+                  {justReminded ? `Reminder sent to ${member.user.name}` : ""}
+                </span>
 
                 <Button
                   variant="ghost"
