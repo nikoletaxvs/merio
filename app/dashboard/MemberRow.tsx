@@ -155,6 +155,17 @@ export default function MemberRow({
               </p>
 
               <div className="flex flex-wrap items-center gap-1.5">
+                <Button
+                  href={`/pay/${member.token}`}
+                  newTab
+                  variant="secondary"
+                  size="sm"
+                >
+                  <Icon name="external" className="h-3 w-3" />
+                  Open pay page
+                  <span className="sr-only"> (opens in a new tab)</span>
+                </Button>
+
                 <CopyPaymentLinkButton token={member.token} />
 
                 {current && !isPaid && (

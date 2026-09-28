@@ -1,5 +1,4 @@
 import { eq } from "drizzle-orm";
-import Link from "next/link";
 import { db } from "@/db";
 import { subscriptions } from "@/db/schema";
 import { Badge, Button, Card, MerioMark, SectionHeading } from "@/components/ui";
@@ -91,15 +90,8 @@ export default async function DashboardPage() {
           <div className="mx-auto flex w-full max-w-4xl flex-wrap items-center gap-x-4 gap-y-2 px-5 py-2.5 text-sm sm:px-6">
             <p className="flex-1 text-muted">
               <span className="font-medium text-foreground">Demo.</span> Sample
-              data, reset every night. Emails are logged, not sent. See what a
-              member sees at{" "}
-              <Link
-                href="/pay/demo-alex"
-                className="font-mono text-foreground underline decoration-border-strong underline-offset-4 hover:decoration-foreground"
-              >
-                /pay/demo-alex
-              </Link>
-              .
+              data, reset every night. Emails are logged, not sent. Open a
+              member below to see their pay page.
             </p>
 
             <form action={resetDemo}>

@@ -35,6 +35,7 @@ const buttonBase =
 export function Button({
   children,
   href,
+  newTab = false,
   variant = "primary",
   size = "md",
   className = "",
@@ -42,6 +43,8 @@ export function Button({
 }: {
   children: ReactNode;
   href?: string;
+  /** Only applies with `href`. */
+  newTab?: boolean;
   variant?: keyof typeof buttonVariants;
   size?: keyof typeof buttonSizes;
 } & ComponentProps<"button">) {
@@ -49,7 +52,11 @@ export function Button({
 
   if (href) {
     return (
-      <Link href={href} className={classes}>
+      <Link
+        href={href}
+        className={classes}
+        {...(newTab && { target: "_blank", rel: "noopener noreferrer" })}
+      >
         {children}
       </Link>
     );

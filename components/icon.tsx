@@ -49,6 +49,11 @@ const icons = {
       </>
     ),
   },
+  external: {
+    viewBox: "0 0 20 20",
+    strokeWidth: 1.6,
+    body: <path d="M11 4h5v5M16 4l-7 7M14 11.5V15a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V7a1 1 0 0 1 1-1h3.5" />,
+  },
   logout: {
     viewBox: "0 0 20 20",
     strokeWidth: 1.5,
