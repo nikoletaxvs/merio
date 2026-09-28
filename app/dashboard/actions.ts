@@ -174,8 +174,12 @@ export async function deleteMember(
   }
 
   try {
-    await db.delete(payments).where(eq(payments.memberId, memberId));
-    await db.delete(members).where(eq(members.id, memberId));
+    // One transaction: if deleting the member fails, their payments are
+    // restored too, instead of leaving a member with no payment history.
+    await db.transaction(async (tx) => {
+      await tx.delete(payments).where(eq(payments.memberId, memberId));
+      await tx.delete(members).where(eq(members.id, memberId));
+    });
 
     revalidatePath("/dashboard");
 

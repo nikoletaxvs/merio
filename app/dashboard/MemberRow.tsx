@@ -1,7 +1,15 @@
 "use client";
 
 import { useEffect, useOptimistic, useState, useTransition } from "react";
-import { Amount, Badge, Button, FormError, Input, Label } from "@/components/ui";
+import {
+  Amount,
+  Badge,
+  Button,
+  ButtonLink,
+  FormError,
+  Input,
+  Label,
+} from "@/components/ui";
 import { Icon } from "@/components/icon";
 import { formatDateLong, formatPeriod } from "@/lib/periods";
 import CopyPaymentLinkButton from "./CopyPaymentLink";
@@ -178,6 +186,10 @@ export default function MemberRow({
 
       <div
         id={`member-actions-${member.id}`}
+        // Collapsed panels are only visually hidden (for the animation), so
+        // `inert` takes their buttons out of the tab order and the
+        // accessibility tree until the row is opened.
+        inert={!open}
         className={`grid transition-all duration-300 ease-in-out ${
           open ? "grid-rows-[1fr] opacity-100" : "grid-rows-[0fr] opacity-0"
         }`}
@@ -206,16 +218,16 @@ export default function MemberRow({
               </p>
 
               <div className="flex flex-wrap items-center gap-1.5">
-                <Button
+                <ButtonLink
                   href={`/pay/${member.token}`}
                   newTab
                   variant="secondary"
                   size="sm"
+                  aria-label={`Open ${member.user.name}'s pay page (opens in a new tab)`}
                 >
                   <Icon name="external" className="h-3 w-3" />
                   Open pay page
-                  <span className="sr-only"> (opens in a new tab)</span>
-                </Button>
+                </ButtonLink>
 
                 <CopyPaymentLinkButton token={member.token} />
 

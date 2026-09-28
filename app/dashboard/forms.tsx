@@ -148,7 +148,7 @@ export function CronTestPanel({
       ) : (
         <>
           <div className="overflow-hidden rounded-md border border-border">
-            <div className="flex items-center gap-3 border-b border-border bg-surface-muted/60 px-3.5 py-2">
+            <label className="flex cursor-pointer items-center gap-3 border-b border-border bg-surface-muted/60 px-3.5 py-2">
               <input
                 type="checkbox"
                 checked={selected.size === members.length}
@@ -159,7 +159,7 @@ export function CronTestPanel({
               <span className="text-xs uppercase tracking-wider text-muted">
                 Select all members
               </span>
-            </div>
+            </label>
 
             <div className="divide-y divide-border">
               {members.map((member) => (

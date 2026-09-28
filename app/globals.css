@@ -73,6 +73,17 @@ body {
   -webkit-font-smoothing: antialiased;
 }
 
+/* Respect the OS "reduce motion" setting: no pulsing skeletons or sliding rows. */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
 ::selection {
   background: var(--foreground);
   color: var(--background);

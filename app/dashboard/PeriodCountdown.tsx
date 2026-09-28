@@ -56,7 +56,13 @@ function Countdown({ target, now }: { target: number; now: number | null }) {
         ];
 
   return (
-    <p className="font-mono tabular-nums text-muted" suppressHydrationWarning>
+    // Hidden from screen readers: it changes every second, and the date
+    // beside it already says when the next payments are created.
+    <p
+      aria-hidden="true"
+      className="font-mono tabular-nums text-muted"
+      suppressHydrationWarning
+    >
       {parts === null
         ? "--d --h --m --s"
         : parts

@@ -1,4 +1,4 @@
-import { Badge, Button, MerioMark } from "@/components/ui";
+import { Badge, ButtonLink, MerioMark } from "@/components/ui";
 import { getDemoUrl } from "@/lib/demo";
 
 const SAMPLE_LEDGER = [
@@ -20,9 +20,9 @@ export default function Home() {
             <span className="font-display text-xl font-medium">Merio</span>
           </div>
 
-          <Button href="/dashboard" variant="ghost" size="sm">
+          <ButtonLink href="/dashboard" variant="ghost" size="sm">
             Sign in
-          </Button>
+          </ButtonLink>
         </nav>
       </header>
 
@@ -42,13 +42,13 @@ export default function Home() {
           <div className="mt-8 flex flex-wrap gap-3">
             {demoUrl ? (
               <>
-                <Button href={demoUrl}>Try the demo</Button>
-                <Button href="/dashboard" variant="secondary">
+                <ButtonLink href={demoUrl}>Try the demo</ButtonLink>
+                <ButtonLink href="/dashboard" variant="secondary">
                   Sign in
-                </Button>
+                </ButtonLink>
               </>
             ) : (
-              <Button href="/dashboard">Open the dashboard</Button>
+              <ButtonLink href="/dashboard">Open the dashboard</ButtonLink>
             )}
           </div>
         </section>

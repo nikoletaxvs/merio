@@ -32,40 +32,50 @@ const buttonSizes = {
 const buttonBase =
   "inline-flex items-center justify-center rounded-md font-medium transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-foreground/40 focus-visible:ring-offset-2 focus-visible:ring-offset-background disabled:pointer-events-none disabled:opacity-50";
 
-export function Button({
-  children,
-  href,
-  newTab = false,
-  variant = "primary",
-  size = "md",
-  className = "",
-  ...props
-}: {
-  children: ReactNode;
-  href?: string;
-  /** Only applies with `href`. */
-  newTab?: boolean;
+type ButtonStyle = {
   variant?: keyof typeof buttonVariants;
   size?: keyof typeof buttonSizes;
-} & ComponentProps<"button">) {
-  const classes = `${buttonBase} ${buttonSizes[size]} ${buttonVariants[variant]} ${className}`;
+};
 
-  if (href) {
-    return (
-      <Link
-        href={href}
-        className={classes}
-        {...(newTab && { target: "_blank", rel: "noopener noreferrer" })}
-      >
-        {children}
-      </Link>
-    );
-  }
+function buttonClasses({ variant = "primary", size = "md" }: ButtonStyle, extra = "") {
+  return `${buttonBase} ${buttonSizes[size]} ${buttonVariants[variant]} ${extra}`;
+}
 
+/** An action. Defaults to type="button" so it never submits a form by accident. */
+export function Button({
+  variant,
+  size,
+  className,
+  type = "button",
+  ...props
+}: ButtonStyle & ComponentProps<"button">) {
   return (
-    <button type="button" className={classes} {...props}>
-      {children}
-    </button>
+    <button
+      type={type}
+      className={buttonClasses({ variant, size }, className)}
+      {...props}
+    />
+  );
+}
+
+/**
+ * Navigation styled as a button. A separate component rather than an `href`
+ * prop on Button, so each one accepts exactly the props of the element it
+ * renders (aria-label, prefetch, etc. are all typed and passed through).
+ */
+export function ButtonLink({
+  variant,
+  size,
+  className,
+  newTab = false,
+  ...props
+}: ButtonStyle & ComponentProps<typeof Link> & { newTab?: boolean }) {
+  return (
+    <Link
+      className={buttonClasses({ variant, size }, className)}
+      {...(newTab && { target: "_blank", rel: "noopener noreferrer" })}
+      {...props}
+    />
   );
 }
 

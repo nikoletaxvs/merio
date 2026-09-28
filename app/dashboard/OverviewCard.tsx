@@ -27,30 +27,32 @@ export default function OverviewCard({
 
   return (
     <section className="mt-10 rounded-md border border-border bg-surface">
-      <dl className="grid divide-y divide-border sm:grid-cols-3 sm:divide-x sm:divide-y-0">
-        <div className="p-5">
+      {/* A <dl> may only contain <dt>/<dd> pairs, so each column is its own
+          list and the Edit button sits beside the last one, not inside it. */}
+      <div className="grid divide-y divide-border sm:grid-cols-3 sm:divide-x sm:divide-y-0">
+        <dl className="p-5">
           <dt className="text-xs uppercase tracking-wider text-muted">
             Each member pays
           </dt>
           <dd className="mt-1.5">
             <Amount cents={amountCents} className="text-2xl font-medium" />
           </dd>
-        </div>
+        </dl>
 
-        <div className="p-5">
+        <dl className="p-5">
           <dt className="text-xs uppercase tracking-wider text-muted">
             Current period
           </dt>
           <dd className="mt-2 font-mono">{formatPeriod(periodStart, periodEnd)}</dd>
-        </div>
+        </dl>
 
         <div className="flex items-start justify-between gap-2 p-5">
-          <div>
+          <dl>
             <dt className="text-xs uppercase tracking-wider text-muted">
               Payments created on
             </dt>
             <dd className="mt-2 font-mono">day {generationDay}</dd>
-          </div>
+          </dl>
 
           {!editing && (
             <Button
@@ -63,7 +65,7 @@ export default function OverviewCard({
             </Button>
           )}
         </div>
-      </dl>
+      </div>
 
       {editing && (
         <form
