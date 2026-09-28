@@ -1,8 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { Icon } from "@/components/icon";
-import { Button } from "@/components/ui";
+import { Button, Icon } from "@/components/ui";
 
 export default function CopyPaymentLinkButton({ token }: { token: string }) {
   const [copied, setCopied] = useState(false);

@@ -1,8 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getBaseUrl } from "@/lib/base-url";
 import { isAuthorizedCron } from "@/lib/cron-auth";
-import { sendPeriodStartReminders } from "@/app/dashboard/period-reminders";
-import { parseDate, toDateString } from "@/lib/periods";
+import { sendPeriodStartReminders } from "@/lib/billing/reminders";
+import { parseDate, toDateString } from "@/lib/billing/periods";
 
 export async function GET(request: NextRequest) {
   if (!isAuthorizedCron(request)) {

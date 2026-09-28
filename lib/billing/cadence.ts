@@ -1,4 +1,4 @@
-import { parseDate } from "@/lib/periods";
+import { parseDate } from "@/lib/billing/periods";
 
 /**
  * Reminder cadence: day 1 (period start), day 7, then weekly.

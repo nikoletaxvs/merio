@@ -8,11 +8,11 @@ import {
   getCurrentPeriod,
   parseDate,
   toDateString,
-} from "@/lib/periods";
+} from "@/lib/billing/periods";
 import {
   daysSincePeriodStart,
   shouldSendReminder,
-} from "@/lib/reminder-cadence";
+} from "@/lib/billing/cadence";
 
 export async function sendPeriodStartReminders(
   baseUrl: string,

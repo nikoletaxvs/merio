@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { formatDateLong } from "@/lib/periods";
+import { formatDateLong } from "@/lib/billing/periods";
 
 export default function PeriodCountdown({
   generationDay,

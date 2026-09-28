@@ -2,9 +2,8 @@ import { eq } from "drizzle-orm";
 import { db } from "@/db";
 import { members } from "@/db/schema";
 import { notFound } from "next/navigation";
-import { Amount, Badge, MerioMark } from "@/components/ui";
-import { Icon } from "@/components/icon";
-import { formatPeriod, getCurrentPeriod } from "@/lib/periods";
+import { Amount, Badge, Icon, MerioMark } from "@/components/ui";
+import { formatPeriod, getCurrentPeriod } from "@/lib/billing/periods";
 import CurrentPayment from "./CurrentPayment";
 
 type Props = {

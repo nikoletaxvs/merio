@@ -5,7 +5,7 @@ import { revalidatePath } from "next/cache";
 
 import { db } from "@/db";
 import { members, payments } from "@/db/schema";
-import { getCurrentPeriod } from "@/lib/periods";
+import { getCurrentPeriod } from "@/lib/billing/periods";
 
 export type MarkPaidResult = { error?: string };
 

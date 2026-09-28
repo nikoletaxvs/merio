@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import { daysSincePeriodStart, shouldSendReminder } from "./reminder-cadence";
+import { daysSincePeriodStart, shouldSendReminder } from "./cadence";
 
 describe("daysSincePeriodStart", () => {
   it("is 0 on the period start date", () => {

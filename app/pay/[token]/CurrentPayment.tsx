@@ -2,7 +2,7 @@
 
 import { useOptimistic, useState } from "react";
 import { Amount, Badge, Button, FormError } from "@/components/ui";
-import { formatDateLong, formatPeriod } from "@/lib/periods";
+import { formatDateLong, formatPeriod } from "@/lib/billing/periods";
 import { markPaymentAsPaid } from "../actions";
 
 type Payment = {

@@ -2,7 +2,7 @@ import { and, eq } from "drizzle-orm";
 
 import { db } from "@/db";
 import { payments } from "@/db/schema";
-import { getCurrentPeriod } from "@/lib/periods";
+import { getCurrentPeriod } from "@/lib/billing/periods";
 
 export async function generatePayments({
   memberIds,

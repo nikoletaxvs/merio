@@ -2,7 +2,8 @@
 
 import { useActionState, useState } from "react";
 import { Amount, Button, FormError, Input, Label } from "@/components/ui";
-import { formatPeriod } from "@/lib/periods";
+import { formatPeriod } from "@/lib/billing/periods";
+import { updateBillingPeriod } from "../_actions/subscription";
 
 export default function OverviewCard({
   amountCents,
@@ -10,20 +11,15 @@ export default function OverviewCard({
   periodStart,
   periodEnd,
   startDate,
-  saveAction,
 }: {
   amountCents: number;
   generationDay: number;
   periodStart: string;
   periodEnd: string;
   startDate: string;
-  saveAction: (
-    prev: { error: string } | null,
-    formData: FormData,
-  ) => Promise<{ error: string } | null>;
 }) {
   const [editing, setEditing] = useState(false);
-  const [state, formAction, isPending] = useActionState(saveAction, null);
+  const [state, formAction, isPending] = useActionState(updateBillingPeriod, null);
 
   return (
     <section className="mt-10 rounded-md border border-border bg-surface">

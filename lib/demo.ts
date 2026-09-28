@@ -5,7 +5,7 @@ import { eq, sql } from "drizzle-orm";
 import { db } from "@/db";
 import { members, payments, subscriptions, users } from "@/db/schema";
 import { isDemoMode } from "@/lib/demo-mode";
-import { getCurrentPeriod, getPeriod, toDateString } from "@/lib/periods";
+import { getCurrentPeriod, getPeriod, toDateString } from "@/lib/billing/periods";
 
 export { isDemoMode };
 

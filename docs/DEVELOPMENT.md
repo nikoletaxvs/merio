@@ -28,6 +28,30 @@ npm test             Vitest (npm run test:watch to watch)
 CI (`.github/workflows/ci.yml`) runs lint, typecheck and tests on every push to
 `main` and on pull requests.
 
+## Project structure
+
+```
+app/
+  dashboard/
+    page.tsx              fetches data and composes the page
+    _actions/             server actions, one file per domain
+                          (members, subscription, billing, session)
+    _components/          dashboard-only UI
+      member-row/         MemberRow and the pieces it's built from
+  pay/[token]/            the member's payment page
+  api/                    cron endpoints
+components/ui/            shared primitives (Button, Badge, Icon, ...),
+                          imported from "@/components/ui"
+lib/
+  billing/                periods, reminder cadence, payment generation,
+                          reminder emails (+ unit tests)
+  owner.ts                OWNER_ID, the single-owner assumption in one place
+```
+
+Folders starting with `_` are private: Next.js doesn't turn them into routes.
+Client components import their server actions directly instead of receiving
+them as props.
+
 ## Environment variables
 
 Required everywhere:
@@ -76,7 +100,7 @@ node scripts/seed-history.mjs 6   # backfill 6 past periods of payments
 
 - Periods run from the subscription's start day to the same day next month.
   Start days past the 28th are clamped to the last day of shorter months
-  (Jan 31, Feb 28, Mar 31). The logic is in `lib/periods.ts` and most of the
+  (Jan 31, Feb 28, Mar 31). The logic is in `lib/billing/periods.ts` and most of the
   tests are about it.
 - `/api/payments/generate` (daily cron) creates a `pending` payment for any
   member who doesn't have one for the current period. Running it twice is

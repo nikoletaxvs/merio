@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { generatePayments } from "@/app/dashboard/payment-generation";
+import { generatePayments } from "@/lib/billing/generate-payments";
 import { isAuthorizedCron } from "@/lib/cron-auth";
 
 export async function GET(request: NextRequest) {
