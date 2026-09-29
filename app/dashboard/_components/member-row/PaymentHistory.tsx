@@ -29,7 +29,7 @@ export default function PaymentHistory({
                 <Amount cents={payment.amountCents} />
               </td>
               <td className="w-0 py-2 text-right">
-                <Badge tone={paid ? "success" : "pending"}>
+                <Badge tone={paid ? "success" : "pending"} className="w-14">
                   {paid ? "Paid" : "Owed"}
                 </Badge>
               </td>

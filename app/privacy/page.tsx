@@ -18,10 +18,10 @@ export default function PrivacyPage() {
     <main className="mx-auto w-full max-w-2xl px-6 py-12 sm:py-16">
       <Link href="/" className="inline-flex items-center gap-2.5">
         <MerioMark className="h-7 w-7" />
-        <span className="font-display text-xl font-medium">Merio</span>
+        <span className="font-display text-xl font-semibold">Merio</span>
       </Link>
 
-      <h1 className="mt-10 font-display text-4xl font-medium">Privacy</h1>
+      <h1 className="mt-10 font-display text-4xl font-semibold">Privacy</h1>
       <p className="mt-2 text-xs tabular-nums text-muted">Last updated {LAST_UPDATED}</p>
 
       <p className="mt-6 text-lg leading-8 text-muted">

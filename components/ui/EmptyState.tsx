@@ -26,7 +26,7 @@ export function EmptyState({
       >
         <MerioMark className="h-10 w-10" />
 
-        <h1 className="mt-6 font-display text-2xl font-medium">{title}</h1>
+        <h1 className="mt-6 font-display text-2xl font-semibold">{title}</h1>
 
         <div className="mt-2 text-sm leading-6 text-muted">{children}</div>
 

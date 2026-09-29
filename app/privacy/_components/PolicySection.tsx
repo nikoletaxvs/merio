@@ -10,7 +10,7 @@ export default function PolicySection({
 }) {
   return (
     <section className="mt-10">
-      <h2 className="font-display text-xl font-medium">{title}</h2>
+      <h2 className="font-display text-xl font-semibold">{title}</h2>
       <div className="mt-3 leading-7 text-muted">{children}</div>
     </section>
   );

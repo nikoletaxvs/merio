@@ -14,7 +14,7 @@ export default function LoginPage() {
       <div className="mx-auto w-full max-w-sm">
         <MerioMark className="h-9 w-9" />
 
-        <h1 className="mt-10 font-display text-4xl font-medium">Welcome back.</h1>
+        <h1 className="mt-10 font-display text-4xl font-semibold">Welcome back.</h1>
 
         <p className="mt-2 text-muted">
           Sign in to see who&apos;s paid this month.

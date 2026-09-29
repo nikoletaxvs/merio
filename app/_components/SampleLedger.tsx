@@ -22,10 +22,10 @@ export default function SampleLedger() {
 
       <figure
         aria-label="Example of a month in Merio"
-        className="relative rounded-md border border-border bg-surface shadow-[0_18px_40px_-24px_rgb(60_45_20/0.35)]"
+        className="relative rounded-md border border-border bg-surface shadow-[0_18px_40px_-24px_rgb(24_40_30/0.3)]"
       >
         <figcaption className="flex items-baseline justify-between border-b border-border px-5 py-3.5">
-          <span className="font-display text-lg font-medium">Spotify Family</span>
+          <span className="font-display text-lg font-semibold">Family music plan</span>
           <span className="text-xs tabular-nums text-muted">15 Mar – 15 Apr</span>
         </figcaption>
 
@@ -38,7 +38,7 @@ export default function SampleLedger() {
               <span>{row.name}</span>
               <span className="flex items-center gap-5">
                 <Amount cents={row.amountCents} />
-                <Badge tone={row.paid ? "success" : "pending"} className="w-12">
+                <Badge tone={row.paid ? "success" : "pending"} className="w-14">
                   {row.paid ? "Paid" : "Owes"}
                 </Badge>
               </span>

@@ -63,7 +63,7 @@ export default async function PaymentPage({ params }: Props) {
           <p className="text-sm text-muted">{familyName}</p>
         </header>
 
-        <h1 className="mt-8 font-display text-4xl font-medium">
+        <h1 className="mt-8 font-display text-4xl font-semibold">
           Hi, {member.user.name.split(" ")[0]}.
         </h1>
 
@@ -97,7 +97,7 @@ export default async function PaymentPage({ params }: Props) {
         {pastPayments.length > 0 && (
           <section className="mt-10">
             <div className="flex items-baseline justify-between border-b border-border pb-2">
-              <h2 className="font-display text-lg font-medium">Earlier months</h2>
+              <h2 className="font-display text-lg font-semibold">Earlier months</h2>
               <span className="text-xs tabular-nums text-muted">
                 {pastPayments.filter((p) => p.status === "paid").length}/
                 {pastPayments.length} paid
@@ -119,7 +119,7 @@ export default async function PaymentPage({ params }: Props) {
 
                     <span className="flex items-center gap-3">
                       <Amount cents={past.amountCents} />
-                      <Badge tone={pastPaid ? "success" : "pending"}>
+                      <Badge tone={pastPaid ? "success" : "pending"} className="w-14">
                         {pastPaid ? "Paid" : "Owed"}
                       </Badge>
                     </span>

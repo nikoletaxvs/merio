@@ -16,7 +16,7 @@ resets nightly, no emails sent)
 -->
 
 <p>
-  <img src="docs/dashboard.png" alt="Owner dashboard showing five members, three of them paid" width="560">
+  <img src="docs/dashboard.png" alt="Owner dashboard showing five members, two of them paid" width="560">
   <img src="docs/pay-page.png" alt="A member's payment page with the amount due and an I've sent button" width="260">
 </p>
 

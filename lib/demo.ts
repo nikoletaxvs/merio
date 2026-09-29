@@ -80,7 +80,7 @@ export async function resetDemoData(today: Date = new Date()) {
       .insert(subscriptions)
       .values({
         ownerId: ownerRow.id,
-        name: "Spotify Family",
+        name: "Family music plan",
         familyName: "The Demo Family",
         amountCents: MEMBER_AMOUNT_CENTS,
         startDate,

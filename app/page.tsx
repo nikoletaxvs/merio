@@ -12,7 +12,7 @@ export default function Home() {
         <nav className="mx-auto flex w-full max-w-5xl items-center justify-between px-6 py-4">
           <div className="flex items-center gap-2.5">
             <MerioMark className="h-7 w-7" />
-            <span className="font-display text-xl font-medium">Merio</span>
+            <span className="font-display text-xl font-semibold">Merio</span>
           </div>
 
           <ButtonLink href="/dashboard" variant="ghost" size="sm">
@@ -23,7 +23,7 @@ export default function Home() {
 
       <main className="mx-auto grid w-full max-w-5xl flex-1 content-center items-center gap-12 px-6 py-16 md:grid-cols-[1.25fr_1fr] md:pt-24 md:pb-32">
         <section>
-          <h1 className="font-display text-5xl font-medium leading-[1.05] tracking-tight sm:text-6xl">
+          <h1 className="font-display text-5xl font-semibold leading-[1.05] tracking-tight sm:text-6xl">
             Who&apos;s paid for the family plan this month?
           </h1>
 

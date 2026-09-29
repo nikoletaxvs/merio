@@ -1,7 +1,9 @@
 @import "tailwindcss";
 
 /*
- * Ledger palette: warm paper, dark ink, hairline rules. Colour carries
+ * Ledger palette: cool grey-green paper, dark ink, hairline rules. The
+ * neutrals share the accent's green tint, so the page and "paid" feel like
+ * one family instead of a cream page with a green sticker on it. Colour carries
  * meaning only: green = paid, ochre = pending, brick = error/destructive.
  * Components use these tokens, never raw colours, so dark mode is just a
  * second set of values.
@@ -9,16 +11,16 @@
 :root {
   color-scheme: light;
 
-  --background: #f5f1e8;
-  --surface: #fffcf6;
-  --surface-muted: #ece6d9;
-  --foreground: #1f1c17;
-  --muted: #6e665a;
-  --border: #ddd5c6;
-  --border-strong: #bfb5a2;
+  --background: #f3f4f0;
+  --surface: #fbfcfa;
+  --surface-muted: #e7eae3;
+  --foreground: #181b18;
+  --muted: #5f665e;
+  --border: #dadfd6;
+  --border-strong: #b5bcb0;
 
   --accent: #2f6b4f;
-  --accent-soft: #e1ebdf;
+  --accent-soft: #dde9e0;
   --pending: #9a5f0c;
   --pending-soft: #f4e6c6;
   --danger: #a8321f;
@@ -29,13 +31,13 @@
   :root {
     color-scheme: dark;
 
-    --background: #171512;
-    --surface: #1f1c18;
-    --surface-muted: #2a2621;
-    --foreground: #eee8dc;
-    --muted: #a39a8b;
-    --border: #36312a;
-    --border-strong: #4d463c;
+    --background: #131513;
+    --surface: #1a1d1a;
+    --surface-muted: #242823;
+    --foreground: #e6eae4;
+    --muted: #979f95;
+    --border: #2e332d;
+    --border-strong: #444c42;
 
     --accent: #86bf9d;
     --accent-soft: rgba(134, 191, 157, 0.13);
@@ -63,7 +65,7 @@
 
   --font-sans: var(--font-plex-sans);
   --font-mono: var(--font-plex-mono);
-  --font-display: var(--font-fraunces);
+  --font-display: var(--font-bricolage);
 }
 
 body {
@@ -96,14 +98,18 @@ body::after {
 }
 
 /* Display headings: tighter tracking, and no single word stranded on the last line. */
-h1,
-h2 {
-  letter-spacing: -0.015em;
-  text-wrap: balance;
-}
+/* In @layer base so utilities like tracking-tight can still override them;
+   unlayered CSS would beat every Tailwind class. */
+@layer base {
+  h1,
+  h2 {
+    letter-spacing: -0.02em;
+    text-wrap: balance;
+  }
 
-p {
-  text-wrap: pretty;
+  p {
+    text-wrap: pretty;
+  }
 }
 
 /* Respect the OS "reduce motion" setting: no pulsing skeletons or sliding rows. */

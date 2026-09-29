@@ -33,7 +33,7 @@ export default function MemberSummary({
           <>
             <Amount cents={current.amountCents} className="hidden sm:inline" />
 
-            <Badge tone={isPaid ? "success" : "pending"}>
+            <Badge tone={isPaid ? "success" : "pending"} className="w-14">
               {isPaid ? "Paid" : "Owes"}
             </Badge>
           </>

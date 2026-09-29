@@ -34,7 +34,7 @@ export default function DashboardHeader({
         )}
 
         <div className="min-w-0 flex-1">
-          <h1 className="truncate font-display text-3xl font-medium">
+          <h1 className="truncate font-display text-3xl font-semibold">
             {familyName ?? name}
           </h1>
           {familyName && <p className="mt-0.5 text-sm text-muted">{name}</p>}
