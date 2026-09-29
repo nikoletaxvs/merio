@@ -1,0 +1,59 @@
+name: E2E on demo deploy
+
+# Vercel reports each deployment back to GitHub. When one of the demo
+# project's deployments succeeds, run the end-to-end tests against exactly
+# that deployment's URL.
+on: deployment_status
+
+# The tests reset and change the demo's data, so never run two at once.
+concurrency:
+  group: e2e-demo-deploy
+  cancel-in-progress: false
+
+jobs:
+  e2e:
+    # Only the demo project ("Production – merio-demo", "Preview – merio-demo").
+    # The real app's deployments ("… – merio2") must never be tested: the tests
+    # change data. contains() also sidesteps the en dash in Vercel's names.
+    if: >-
+      github.event.deployment_status.state == 'success' &&
+      contains(github.event.deployment_status.environment, 'merio-demo')
+    runs-on: ubuntu-latest
+    env:
+      E2E_BASE_URL: ${{ github.event.deployment_status.environment_url || github.event.deployment_status.target_url }}
+      VERCEL_AUTOMATION_BYPASS_SECRET: ${{ secrets.VERCEL_AUTOMATION_BYPASS_SECRET }}
+    steps:
+      - name: Check setup
+        run: |
+          if [ -z "$VERCEL_AUTOMATION_BYPASS_SECRET" ]; then
+            echo "::error::Add the VERCEL_AUTOMATION_BYPASS_SECRET repository secret (see docs/DEVELOPMENT.md)."
+            exit 1
+          fi
+          echo "Testing $E2E_BASE_URL"
+
+      # Test the same commit that was deployed, not whatever main is now.
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.deployment.sha }}
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - run: npm ci
+
+      - name: Install Chromium
+        run: npx playwright install --with-deps chromium
+
+      - name: End-to-end tests against the deployment
+        run: npm run test:e2e
+
+      - uses: actions/upload-artifact@v4
+        if: failure()
+        with:
+          name: playwright-report-deployed
+          path: |
+            playwright-report/
+            test-results/
+          retention-days: 7

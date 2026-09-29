@@ -1,5 +1,5 @@
-import { Button } from "@/components/ui";
 import { resetDemo } from "../_actions/session";
+import ResetDemoButton from "./ResetDemoButton";
 
 /** Explains the demo deployment and lets visitors restore the sample data. */
 export default function DemoBanner() {
@@ -13,9 +13,7 @@ export default function DemoBanner() {
         </p>
 
         <form action={resetDemo}>
-          <Button type="submit" variant="secondary" size="sm">
-            Reset data
-          </Button>
+          <ResetDemoButton />
         </form>
       </div>
     </div>

@@ -88,49 +88,65 @@ export async function resetDemoData(today: Date = new Date()) {
       })
       .returning();
 
-    for (const demoMember of DEMO_MEMBERS) {
-      const [user] = await tx
-        .insert(users)
-        .values({
+    // One multi row insert per table instead of one insert per row
+    // returning order isn't guaranteed, so rows are matched back by email and
+    // token rather than by position.
+    const emailOf = (token: string) => `${token}@demo.example.com`;
+
+    const userRows = await tx
+      .insert(users)
+      .values(
+        DEMO_MEMBERS.map((demoMember) => ({
           name: demoMember.name,
-          email: `${demoMember.token}@demo.example.com`,
-        })
-        .returning();
+          email: emailOf(demoMember.token),
+        })),
+      )
+      .returning({ id: users.id, email: users.email });
+    const userIdByEmail = new Map(userRows.map((row) => [row.email, row.id]));
 
-      const [member] = await tx
-        .insert(members)
-        .values({
+    const memberRows = await tx
+      .insert(members)
+      .values(
+        DEMO_MEMBERS.map((demoMember) => ({
           subscriptionId: subscription.id,
-          userId: user.id,
+          userId: userIdByEmail.get(emailOf(demoMember.token))!,
           token: demoMember.token,
-        })
-        .returning();
+        })),
+      )
+      .returning({ id: members.id, token: members.token });
+    const memberIdByToken = new Map(memberRows.map((row) => [row.token, row.id]));
 
-      for (let i = 0; i <= PAST_PERIODS; i++) {
-        const period = getPeriod(
-          new Date(anchor.getFullYear(), anchor.getMonth() - PAST_PERIODS + i, startDay),
-          startDate,
-        );
-        const isCurrent = period.start === current.start;
-        const isLastPast = i === PAST_PERIODS - 1;
+    const periods = Array.from({ length: PAST_PERIODS + 1 }, (_, i) =>
+      getPeriod(
+        new Date(anchor.getFullYear(), anchor.getMonth() - PAST_PERIODS + i, startDay),
+        startDate,
+      ),
+    );
 
-        const paid = isCurrent
-          ? PAID_THIS_PERIOD.has(demoMember.token)
-          : !(isLastPast && demoMember.token === LATE_MEMBER);
+    await tx.insert(payments).values(
+      DEMO_MEMBERS.flatMap((demoMember) =>
+        periods.map((period, i) => {
+          const isCurrent = period.start === current.start;
+          const isLastPast = i === PAST_PERIODS - 1;
 
-        const paidAt = new Date(`${period.start}T12:00:00`);
-        paidAt.setDate(paidAt.getDate() + 1 + (i % 3));
+          const paid = isCurrent
+            ? PAID_THIS_PERIOD.has(demoMember.token)
+            : !(isLastPast && demoMember.token === LATE_MEMBER);
 
-        await tx.insert(payments).values({
-          memberId: member.id,
-          amountCents: MEMBER_AMOUNT_CENTS,
-          periodStart: period.start,
-          periodEnd: period.end,
-          status: paid ? "paid" : "pending",
-          paidAt: paid ? paidAt : null,
-        });
-      }
-    }
+          const paidAt = new Date(`${period.start}T12:00:00`);
+          paidAt.setDate(paidAt.getDate() + 1 + (i % 3));
+
+          return {
+            memberId: memberIdByToken.get(demoMember.token)!,
+            amountCents: MEMBER_AMOUNT_CENTS,
+            periodStart: period.start,
+            periodEnd: period.end,
+            status: paid ? "paid" : "pending",
+            paidAt: paid ? paidAt : null,
+          };
+        }),
+      ),
+    );
   });
 }
 

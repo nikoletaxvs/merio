@@ -22,11 +22,48 @@ npm run dev          dev server
 npm run build        production build
 npm run lint         ESLint
 npm run typecheck    generate Next route types, then tsc --noEmit
-npm test             Vitest (npm run test:watch to watch)
+npm test             Vitest unit tests (npm run test:watch to watch)
+npm run test:e2e     Playwright end-to-end tests (see below)
 ```
 
-CI (`.github/workflows/ci.yml`) runs lint, typecheck and tests on every push to
-`main` and on pull requests.
+CI (`.github/workflows/ci.yml`) runs lint, typecheck and unit tests on every
+push to `main` and on pull requests, plus the end-to-end tests against a
+throwaway Postgres container.
+
+### End-to-end tests
+
+`e2e/` drives the real app in Chromium: a member marks their payment paid and
+the owner sees it, keyboard users can't tab into collapsed member rows, and
+unknown pay links show the not-found page. The tests run in demo mode and
+reset the sample data before each test, so locally they need a `.env` with
+`DEMO_MODE=true` and a **throwaway** `DATABASE_URL`. (`resetDemoData` refuses
+to touch a database the demo doesn't own, so they can't wipe real data.)
+
+```bash
+npx playwright install chromium   # once
+npm run test:e2e                  # reuses a running `npm run dev`
+npx playwright test --ui          # watch the tests run, step by step
+```
+
+`E2E_BASE_URL` points the tests at an already running site instead, e.g.
+`E2E_BASE_URL=https://merio-demo.vercel.app npm run test:e2e`.
+
+#### After every demo deploy
+
+`.github/workflows/e2e-deployed.yml` runs the same tests automatically each
+time Vercel reports a successful deployment of the **merio-demo** project,
+against that exact deployment's URL (the real app's `merio2` deployments are
+filtered out). Those per-deployment URLs sit behind Vercel's login, so it
+needs a bypass secret, set up once:
+
+1. Vercel → **merio-demo** project → Settings → Deployment Protection →
+   **Protection Bypass for Automation** → create a secret.
+2. GitHub → repo Settings → Secrets and variables → Actions → **New
+   repository secret** named `VERCEL_AUTOMATION_BYPASS_SECRET` with that value.
+
+Preview deployments are tested too, as long as the demo project's
+environment variables (`DATABASE_URL`, `DEMO_MODE`, ...) also apply to the
+Preview environment in Vercel.
 
 ## Project structure
 
