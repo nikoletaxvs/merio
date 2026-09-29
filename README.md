@@ -21,7 +21,8 @@ resets nightly, no emails sent)
 </p>
 
 ## Why I built it
-Me and my friend group share a spotify family plan, every month the admin user had to remind everyone to pay. Its not a tiring task but I personally believe that having many small tasks in the background is cognitively exhausting and anxiety inducing. So there I spotted an opportunity to make our lives easier and automate this montly process.
+
+Me and my friend group share a Spotify family plan, and every month the admin had to remind everyone to pay. It's not a tiring task on its own, but I believe having lots of small background tasks like this adds up, increasing cognitive load and reducing productivity. So I spotted an opportunity to make our lives easier and automate this monthly process.
 
 ## How it works
 
@@ -33,6 +34,7 @@ Merio only tracks payments; the money itself moves however the family already
 pays each other.
 
 ## Decisions worth mentioning
+
 1. Authentication is purposefully omitted for members and a token per user is used instead for better UX since the nature and scale of the app allow that
 2. The demo is a separate deployment and requires no password for login
 
