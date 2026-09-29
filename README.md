@@ -21,12 +21,7 @@ resets nightly, no emails sent)
 </p>
 
 ## Why I built it
-
-<!--
-  Write this yourself, 2-4 sentences, in your own words. For example: who
-  shares the plan, what was annoying about the old way, what you wanted
-  instead. Specific beats polished.
--->
+Me and my friend group share a spotify family plan, every month the admin user had to remind everyone to pay. Its not a tiring task but I personally believe that having many small tasks in the background is cognitively exhausting and anxiety inducing. So there I spotted an opportunity to make our lives easier and automate this montly process.
 
 ## How it works
 
@@ -38,17 +33,8 @@ Merio only tracks payments; the money itself moves however the family already
 pays each other.
 
 ## Decisions worth mentioning
-
-<!--
-  Write 3-5 of these yourself, one or two sentences each, as things you could
-  defend in an interview. Candidates from this project:
-  - payment links use a secret token and the server derives the payment from
-    it (the IDOR fix in app/pay/actions.ts)
-  - the demo is a separate deployment instead of a guest login on the real one
-  - unit tests on the date logic caught a month-end billing bug
-  - design tokens: every colour comes from globals.css, so dark mode is free
-  - what you'd change if this had many owners instead of one
--->
+1. Authentication is purposefully omitted for members and a token per user is used instead for better UX since the nature and scale of the app allow that
+2. The demo is a separate deployment and requires no password for login
 
 ## Stack
 
