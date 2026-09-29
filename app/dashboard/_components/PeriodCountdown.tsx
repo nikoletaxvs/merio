@@ -18,7 +18,7 @@ export default function PeriodCountdown({
     <div className="mt-3 flex flex-col justify-between gap-3 px-1 text-sm sm:flex-row sm:items-center">
       <p className="text-muted">
         Next payments are created on{" "}
-        <span className="font-mono text-foreground">{formatDateLong(next)}</span>
+        <span className="font-medium tabular-nums text-foreground">{formatDateLong(next)}</span>
       </p>
 
       <Countdown target={next.getTime()} />

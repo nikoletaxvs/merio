@@ -158,11 +158,31 @@ export async function deleteMember(
   }
 
   try {
-    // One transaction: if deleting the member fails, their payments are
-    // restored too, instead of leaving a member with no payment history.
+    // One transaction, so a failure part-way leaves everything as it was.
     await db.transaction(async (tx) => {
       await tx.delete(payments).where(eq(payments.memberId, memberId));
-      await tx.delete(members).where(eq(members.id, memberId));
+
+      const [removed] = await tx
+        .delete(members)
+        .where(eq(members.id, memberId))
+        .returning({ userId: members.userId });
+
+      if (!removed) {
+        return;
+      }
+
+      // Also erase the person's name and email (see /privacy), unless they
+      // still belong to another subscription or own one.
+      const stillMember = await tx.query.members.findFirst({
+        where: eq(members.userId, removed.userId),
+      });
+      const isOwner = await tx.query.subscriptions.findFirst({
+        where: eq(subscriptions.ownerId, removed.userId),
+      });
+
+      if (!stillMember && !isOwner) {
+        await tx.delete(users).where(eq(users.id, removed.userId));
+      }
     });
 
     revalidatePath("/dashboard");

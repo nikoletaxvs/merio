@@ -45,7 +45,7 @@ export default async function DashboardPage() {
   const demo = isDemoMode();
 
   return (
-    <main className="min-h-screen w-full">
+    <main className="min-h-dvh w-full">
       {demo && <DemoBanner />}
 
       <div className="mx-auto w-full max-w-4xl px-5 py-8 sm:px-6 sm:py-12">

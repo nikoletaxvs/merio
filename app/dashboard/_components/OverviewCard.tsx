@@ -22,32 +22,32 @@ export default function OverviewCard({
   const [state, formAction, isPending] = useActionState(updateBillingPeriod, null);
 
   return (
-    <section className="mt-10 rounded-md border border-border bg-surface">
+    <section className="mt-10 border-y border-border-strong">
       {/* A <dl> may only contain <dt>/<dd> pairs, so each column is its own
           list and the Edit button sits beside the last one, not inside it. */}
       <div className="grid divide-y divide-border sm:grid-cols-3 sm:divide-x sm:divide-y-0">
-        <dl className="p-5">
-          <dt className="text-xs uppercase tracking-wider text-muted">
+        <dl className="py-5 sm:px-5 sm:first:pl-0">
+          <dt className="text-sm text-muted">
             Each member pays
           </dt>
           <dd className="mt-1.5">
-            <Amount cents={amountCents} className="text-2xl font-medium" />
+            <Amount cents={amountCents} className="text-3xl font-medium tracking-tight" />
           </dd>
         </dl>
 
-        <dl className="p-5">
-          <dt className="text-xs uppercase tracking-wider text-muted">
+        <dl className="py-5 sm:px-5 sm:first:pl-0">
+          <dt className="text-sm text-muted">
             Current period
           </dt>
-          <dd className="mt-2 font-mono">{formatPeriod(periodStart, periodEnd)}</dd>
+          <dd className="mt-1.5 text-lg font-medium tabular-nums">{formatPeriod(periodStart, periodEnd)}</dd>
         </dl>
 
-        <div className="flex items-start justify-between gap-2 p-5">
+        <div className="flex items-start justify-between gap-2 py-5 sm:px-5 sm:pr-0">
           <dl>
-            <dt className="text-xs uppercase tracking-wider text-muted">
+            <dt className="text-sm text-muted">
               Payments created on
             </dt>
-            <dd className="mt-2 font-mono">day {generationDay}</dd>
+            <dd className="mt-1.5 text-lg font-medium tabular-nums">Day {generationDay}</dd>
           </dl>
 
           {!editing && (
@@ -66,7 +66,7 @@ export default function OverviewCard({
       {editing && (
         <form
           action={formAction}
-          className="grid gap-4 border-t border-border p-5 sm:grid-cols-[1fr_1fr_auto] sm:items-end"
+          className="grid gap-4 border-t border-border py-5 sm:grid-cols-[1fr_1fr_auto] sm:items-end"
         >
           <div>
             <Label htmlFor="startDate">Period start date</Label>

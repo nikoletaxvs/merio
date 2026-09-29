@@ -73,6 +73,39 @@ body {
   -webkit-font-smoothing: antialiased;
 }
 
+/*
+ * Paper grain: a fixed noise layer so the background reads as paper, not a
+ * flat hex value. pointer-events: none keeps it from ever catching a click.
+ */
+body::after {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: 50;
+  pointer-events: none;
+  opacity: 0.05;
+  mix-blend-mode: multiply;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+
+@media (prefers-color-scheme: dark) {
+  body::after {
+    opacity: 0.07;
+    mix-blend-mode: screen;
+  }
+}
+
+/* Display headings: tighter tracking, and no single word stranded on the last line. */
+h1,
+h2 {
+  letter-spacing: -0.015em;
+  text-wrap: balance;
+}
+
+p {
+  text-wrap: pretty;
+}
+
 /* Respect the OS "reduce motion" setting: no pulsing skeletons or sliding rows. */
 @media (prefers-reduced-motion: reduce) {
   *,

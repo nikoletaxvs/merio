@@ -1,10 +1,11 @@
 import type { ReactNode } from "react";
 
-// Rubber-stamp style status label.
+// Status label: a coloured dot plus sentence-case text. The dot carries the
+// colour, so the text stays readable and the row doesn't shout in capitals.
 const badgeTones = {
-  neutral: "border-border-strong text-muted",
-  success: "border-accent/50 bg-accent-soft text-accent",
-  pending: "border-pending/50 bg-pending-soft text-pending",
+  neutral: { text: "text-muted", dot: "bg-border-strong" },
+  success: { text: "text-accent", dot: "bg-accent" },
+  pending: { text: "text-pending", dot: "bg-pending" },
 };
 
 export function Badge({
@@ -16,10 +17,13 @@ export function Badge({
   tone?: keyof typeof badgeTones;
   className?: string;
 }) {
+  const { text, dot } = badgeTones[tone];
+
   return (
     <span
-      className={`inline-flex items-center gap-1 rounded-sm border px-1.5 py-0.5 font-mono text-[11px] font-medium uppercase tracking-wider ${badgeTones[tone]} ${className}`}
+      className={`inline-flex items-center gap-1.5 text-xs font-medium ${text} ${className}`}
     >
+      <span aria-hidden="true" className={`h-1.5 w-1.5 rounded-full ${dot}`} />
       {children}
     </span>
   );

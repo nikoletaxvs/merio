@@ -4,7 +4,7 @@ import { Skeleton } from "@/components/ui";
 // connection, so show the page's shape straight away.
 export default function Loading() {
   return (
-    <main className="min-h-screen w-full">
+    <main className="min-h-dvh w-full">
       <div role="status" className="mx-auto w-full max-w-md px-5 py-10 sm:px-6">
         <span className="sr-only">Loading your payment…</span>
 

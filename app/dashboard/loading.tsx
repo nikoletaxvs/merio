@@ -5,7 +5,7 @@ import { Skeleton } from "@/components/ui";
 // layout so nothing jumps when the content arrives.
 export default function Loading() {
   return (
-    <main className="min-h-screen w-full">
+    <main className="min-h-dvh w-full">
       <div
         role="status"
         className="mx-auto w-full max-w-4xl px-5 py-8 sm:px-6 sm:py-12"

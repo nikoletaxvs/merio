@@ -51,7 +51,7 @@ export default function CronTestPanel({
             className="h-4 w-4 shrink-0 accent-foreground"
           />
 
-          <span className="text-xs uppercase tracking-wider text-muted">
+          <span className="text-xs font-medium text-muted">
             Select all members
           </span>
         </label>

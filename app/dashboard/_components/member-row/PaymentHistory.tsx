@@ -19,7 +19,7 @@ export default function PaymentHistory({
 
           return (
             <tr key={payment.id}>
-              <td className="py-2 pr-3 font-mono text-muted">
+              <td className="py-2 pr-3 tabular-nums text-muted">
                 {formatPeriod(payment.periodStart, payment.periodEnd)}
               </td>
               <td className="hidden py-2 pr-3 text-muted sm:table-cell">

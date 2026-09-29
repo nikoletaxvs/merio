@@ -22,7 +22,7 @@ export default function Countdown({ target }: { target: number }) {
     // beside it already says when the next payments are created.
     <p
       aria-hidden="true"
-      className="font-mono tabular-nums text-muted"
+      className="tabular-nums text-muted"
       suppressHydrationWarning
     >
       {parts === null

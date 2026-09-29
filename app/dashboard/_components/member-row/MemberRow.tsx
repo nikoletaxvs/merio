@@ -95,7 +95,7 @@ export default function MemberRow({
               <p className="text-sm text-muted">
                 {current ? (
                   <>
-                    <span className="font-mono">
+                    <span className="tabular-nums">
                       {formatPeriod(current.periodStart, current.periodEnd)}
                     </span>
                     {isPaid && " · settled"}

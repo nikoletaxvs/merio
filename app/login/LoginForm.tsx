@@ -13,7 +13,7 @@ export default function LoginForm() {
   return (
     <form
       action={formAction}
-      className="mt-8 rounded-md border border-border bg-surface p-6"
+      className="mt-8 border-t border-border pt-6"
     >
       <div>
         <Label htmlFor="password">

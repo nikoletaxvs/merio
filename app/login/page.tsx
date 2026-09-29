@@ -10,17 +10,15 @@ export default function LoginPage() {
   }
 
   return (
-    <main className="flex min-h-screen w-full items-center justify-center px-6">
-      <div className="w-full max-w-sm">
-        <div className="flex flex-col items-center text-center">
-          <MerioMark className="h-10 w-10" />
+    <main className="flex min-h-dvh w-full items-center px-6 pb-[12vh]">
+      <div className="mx-auto w-full max-w-sm">
+        <MerioMark className="h-9 w-9" />
 
-          <h1 className="mt-5 font-display text-3xl font-medium">Merio</h1>
+        <h1 className="mt-10 font-display text-4xl font-medium">Welcome back.</h1>
 
-          <p className="mt-1.5 text-sm text-muted">
-            Sign in to manage your subscription.
-          </p>
-        </div>
+        <p className="mt-2 text-muted">
+          Sign in to see who&apos;s paid this month.
+        </p>
 
         <LoginForm />
       </div>

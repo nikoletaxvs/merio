@@ -2,7 +2,8 @@ import type { Metadata } from "next";
 import { Fraunces, IBM_Plex_Mono, IBM_Plex_Sans } from "next/font/google";
 import "./globals.css";
 
-// Serif for headings, Plex for text, Plex Mono for every amount and date.
+// Serif for headings, Plex for text, Plex Mono for money only. Dates and
+// counts stay in Plex with tabular figures, so mono always means "an amount".
 const fraunces = Fraunces({
   variable: "--font-fraunces",
   subsets: ["latin"],

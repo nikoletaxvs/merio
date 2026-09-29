@@ -254,6 +254,12 @@ function reminderEmailHtml({
             Or copy this link into your browser:<br/>
             <a href="${payUrl}" style="color:#6d5bd0">${payUrl}</a>
           </p>
+          <p style="margin:24px 0 0;padding-top:16px;border-top:1px solid #eee;color:#888;font-size:12px;line-height:1.5">
+            You're getting this because you share ${familyName}'s
+            ${subscriptionName} plan and the person who runs it added you to
+            Merio. If you shouldn't be on this list, reply to them.
+            <a href="${privacyUrlFrom(payUrl)}" style="color:#888">How Merio uses your data</a>
+          </p>
         </div>
       </div>
     </div>
@@ -284,7 +290,18 @@ function reminderEmailText({
     `Open your payment page to confirm: ${payUrl}`,
     "",
     "— Merio",
+    "",
+    `You're getting this because you share the ${subscriptionName} plan and the`,
+    "person who runs it added you to Merio. If you shouldn't be on this list,",
+    "reply to them.",
+    `How Merio uses your data: ${privacyUrlFrom(payUrl)}`,
   ].join("\n");
+}
+
+// The pay link already carries the site's base URL, so derive the privacy
+// link from it instead of passing another URL through every caller.
+function privacyUrlFrom(payUrl: string) {
+  return new URL("/privacy", payUrl).toString();
 }
 
 function familyNameOf(subscription: { name: string; familyName?: string | null }) {

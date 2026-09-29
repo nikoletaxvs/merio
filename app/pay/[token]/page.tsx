@@ -1,6 +1,7 @@
 import { eq } from "drizzle-orm";
 import { db } from "@/db";
 import { members } from "@/db/schema";
+import Link from "next/link";
 import { notFound } from "next/navigation";
 import { Amount, Badge, Icon, MerioMark } from "@/components/ui";
 import { formatPeriod, getCurrentPeriod } from "@/lib/billing/periods";
@@ -45,8 +46,8 @@ export default async function PaymentPage({ params }: Props) {
   const familyName = member.subscription.familyName ?? member.subscription.name;
 
   return (
-    <main className="min-h-screen w-full">
-      <div className="mx-auto flex min-h-screen w-full max-w-md flex-col px-5 py-10 sm:px-6">
+    <main className="min-h-dvh w-full">
+      <div className="mx-auto flex min-h-dvh w-full max-w-md flex-col px-5 py-10 sm:px-6">
         <header className="flex items-center gap-3">
           {member.subscription.photoUrl ? (
             // eslint-disable-next-line @next/next/no-img-element
@@ -97,7 +98,7 @@ export default async function PaymentPage({ params }: Props) {
           <section className="mt-10">
             <div className="flex items-baseline justify-between border-b border-border pb-2">
               <h2 className="font-display text-lg font-medium">Earlier months</h2>
-              <span className="font-mono text-xs text-muted">
+              <span className="text-xs tabular-nums text-muted">
                 {pastPayments.filter((p) => p.status === "paid").length}/
                 {pastPayments.length} paid
               </span>
@@ -112,7 +113,7 @@ export default async function PaymentPage({ params }: Props) {
                     key={past.id}
                     className="flex items-center justify-between gap-3 py-3 text-sm"
                   >
-                    <span className="font-mono text-muted">
+                    <span className="tabular-nums text-muted">
                       {formatPeriod(past.periodStart, past.periodEnd)}
                     </span>
 
@@ -129,8 +130,14 @@ export default async function PaymentPage({ params }: Props) {
           </section>
         )}
 
-        <footer className="mt-auto pt-12 text-xs text-muted">
-          Sent to you by {familyName} via Merio.
+        <footer className="mt-auto flex flex-wrap justify-between gap-x-4 gap-y-1 pt-12 text-xs text-muted">
+          <p>Sent to you by {familyName} via Merio.</p>
+          <Link
+            href="/privacy"
+            className="underline decoration-border-strong underline-offset-4 hover:text-foreground hover:decoration-foreground"
+          >
+            How your data is used
+          </Link>
         </footer>
       </div>
     </main>

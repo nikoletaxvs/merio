@@ -81,7 +81,7 @@ export default function CurrentPayment({
         <dl className="divide-y divide-border border-t border-border text-sm">
           <div className="flex justify-between gap-4 px-5 py-3">
             <dt className="text-muted">Period</dt>
-            <dd className="font-mono">
+            <dd className="tabular-nums">
               {formatPeriod(shown.periodStart, shown.periodEnd)}
             </dd>
           </div>
@@ -90,7 +90,7 @@ export default function CurrentPayment({
             <dt className="text-muted">Status</dt>
             <dd>
               {isPaid && shown.paidAt ? (
-                <span className="font-mono">
+                <span className="tabular-nums">
                   Paid {formatDateLong(shown.paidAt)}
                 </span>
               ) : (

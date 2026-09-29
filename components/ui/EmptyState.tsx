@@ -19,7 +19,7 @@ export function EmptyState({
   tone?: "info" | "error";
 }) {
   return (
-    <main className="flex min-h-screen w-full items-center justify-center px-6 py-16">
+    <main className="flex min-h-dvh w-full items-center justify-center px-6 py-16">
       <div
         role={tone === "error" ? "alert" : undefined}
         className="flex w-full max-w-sm flex-col items-center text-center"

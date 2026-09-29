@@ -15,7 +15,7 @@ const buttonSizes = {
 };
 
 const buttonBase =
-  "inline-flex items-center justify-center rounded-md font-medium transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-foreground/40 focus-visible:ring-offset-2 focus-visible:ring-offset-background disabled:pointer-events-none disabled:opacity-50";
+  "inline-flex items-center justify-center rounded-md font-medium transition-[color,background-color,transform] duration-150 active:translate-y-px focus:outline-none focus-visible:ring-2 focus-visible:ring-foreground/40 focus-visible:ring-offset-2 focus-visible:ring-offset-background disabled:pointer-events-none disabled:opacity-50";
 
 export type ButtonStyle = {
   variant?: keyof typeof buttonVariants;

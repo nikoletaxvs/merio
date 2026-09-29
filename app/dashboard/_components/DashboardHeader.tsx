@@ -53,9 +53,9 @@ export default function DashboardHeader({
       <div className="mt-8">
         <div className="flex items-baseline justify-between gap-4 text-sm">
           <p className="text-muted">
-            <span className="font-mono font-medium text-foreground">{paidCount}</span>{" "}
+            <span className="font-medium tabular-nums text-foreground">{paidCount}</span>{" "}
             of{" "}
-            <span className="font-mono font-medium text-foreground">{total}</span>{" "}
+            <span className="font-medium tabular-nums text-foreground">{total}</span>{" "}
             paid this period
           </p>
 
