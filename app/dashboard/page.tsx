@@ -1,7 +1,7 @@
 import { eq } from "drizzle-orm";
 import { db } from "@/db";
 import { subscriptions } from "@/db/schema";
-import { Card, MerioMark, SectionHeading } from "@/components/ui";
+import { Card, SectionHeading } from "@/components/ui";
 import { requireOwner } from "@/lib/auth";
 import { getCurrentPeriod } from "@/lib/billing/periods";
 import { isDemoMode } from "@/lib/demo";
@@ -13,6 +13,7 @@ import DashboardHeader from "./_components/DashboardHeader";
 import DemoBanner from "./_components/DemoBanner";
 import FamilySettingsForm from "./_components/FamilySettingsForm";
 import MemberRow from "./_components/member-row/MemberRow";
+import NoSubscription from "./_components/NoSubscription";
 import OverviewCard from "./_components/OverviewCard";
 import PeriodCountdown from "./_components/PeriodCountdown";
 
@@ -149,24 +150,6 @@ export default async function DashboardPage() {
             />
           </Card>
         </section>
-      </div>
-    </main>
-  );
-}
-
-function NoSubscription() {
-  return (
-    <main className="flex min-h-screen w-full flex-1 items-center justify-center px-6 py-16 text-center">
-      <div className="flex max-w-sm flex-col items-center">
-        <MerioMark className="h-10 w-10" />
-
-        <h1 className="mt-6 font-display text-2xl font-medium">
-          No subscription yet
-        </h1>
-
-        <p className="mt-2 text-sm leading-6 text-muted">
-          Once a subscription exists, its members and payments show up here.
-        </p>
       </div>
     </main>
   );

@@ -55,6 +55,27 @@ function periodIndex(date: Date, startDate: string): number {
   return n;
 }
 
+/**
+ * When the payment job next creates payments: the coming `generationDay` of
+ * this month, or of next month if that moment has already passed.
+ */
+export function nextGenerationDate(
+  generationDay: number,
+  today: Date = new Date(),
+): Date {
+  const candidate = new Date(
+    today.getFullYear(),
+    today.getMonth(),
+    generationDay,
+  );
+
+  if (candidate.getTime() <= today.getTime()) {
+    candidate.setMonth(candidate.getMonth() + 1);
+  }
+
+  return candidate;
+}
+
 export function getCurrentPeriod(startDate: string, today: Date = new Date()) {
   return getPeriod(today, startDate);
 }

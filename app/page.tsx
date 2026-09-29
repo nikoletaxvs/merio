@@ -1,12 +1,6 @@
-import { Badge, ButtonLink, MerioMark } from "@/components/ui";
+import { ButtonLink, MerioMark } from "@/components/ui";
 import { getDemoUrl } from "@/lib/demo";
-
-const SAMPLE_LEDGER = [
-  { name: "Alex", amount: "€3.00", paid: true },
-  { name: "Sam", amount: "€3.00", paid: true },
-  { name: "Jordan", amount: "€3.00", paid: false },
-  { name: "Maya", amount: "€3.00", paid: true },
-];
+import SampleLedger from "./_components/SampleLedger";
 
 export default function Home() {
   const demoUrl = getDemoUrl();
@@ -53,38 +47,7 @@ export default function Home() {
           </div>
         </section>
 
-        <figure
-          aria-label="Example of a month in Merio"
-          className="rounded-md border border-border bg-surface"
-        >
-          <figcaption className="flex items-baseline justify-between border-b border-border px-5 py-3">
-            <span className="font-display text-lg font-medium">
-              Spotify Family
-            </span>
-            <span className="font-mono text-xs text-muted">15 Mar – 15 Apr</span>
-          </figcaption>
-
-          <ul className="divide-y divide-border">
-            {SAMPLE_LEDGER.map((row) => (
-              <li
-                key={row.name}
-                className="flex items-center justify-between px-5 py-3 text-sm"
-              >
-                <span>{row.name}</span>
-                <span className="flex items-center gap-4">
-                  <span className="font-mono tabular-nums">{row.amount}</span>
-                  <Badge tone={row.paid ? "success" : "pending"}>
-                    {row.paid ? "Paid" : "Owes"}
-                  </Badge>
-                </span>
-              </li>
-            ))}
-          </ul>
-
-          <p className="border-t border-border px-5 py-3 font-mono text-xs text-muted">
-            Reminder to Jordan sent 22 Mar
-          </p>
-        </figure>
+        <SampleLedger />
       </main>
 
       <footer className="border-t border-border">

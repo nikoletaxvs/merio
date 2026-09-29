@@ -4,6 +4,7 @@ import {
   formatPeriod,
   getCurrentPeriod,
   getNextPeriodStart,
+  nextGenerationDate,
   parseDate,
   toDateString,
 } from "./periods";
@@ -113,6 +114,26 @@ describe("getNextPeriodStart", () => {
     expect(getNextPeriodStart("2026-01-15", on(2026, 3, 20))).toBe(
       "2026-04-15",
     );
+  });
+});
+
+describe("nextGenerationDate", () => {
+  it("is later this month when the day hasn't come yet", () => {
+    expect(nextGenerationDate(20, on(2026, 3, 10))).toEqual(on(2026, 3, 20));
+  });
+
+  it("moves to next month once the day has passed", () => {
+    expect(nextGenerationDate(5, on(2026, 3, 10))).toEqual(on(2026, 4, 5));
+  });
+
+  it("moves to next month on the day itself, once midnight has passed", () => {
+    const morningOfTheDay = new Date(2026, 2, 5, 9, 30);
+
+    expect(nextGenerationDate(5, morningOfTheDay)).toEqual(on(2026, 4, 5));
+  });
+
+  it("crosses the year boundary", () => {
+    expect(nextGenerationDate(3, on(2026, 12, 20))).toEqual(on(2027, 1, 3));
   });
 });
 
