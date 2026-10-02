@@ -1,0 +1,21 @@
+{
+  "folders": [
+	{
+		"name": "app",
+		"path": "../../../../../../../Downloads/merio-verifier/merio-verifier/app"
+	},
+	{
+		"name": "evals",
+		"path": "../../../../../../../Downloads/merio-verifier/merio-verifier/evals"
+	},
+	{
+		"name": "verifier",
+		"path": "."
+	},
+	{
+		"name": "tests",
+		"path": "../../../../../../../Downloads/merio-verifier/merio-verifier/tests"
+	}
+],
+  "settings": {}
+}
