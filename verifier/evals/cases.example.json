@@ -1,0 +1,22 @@
+[
+  {
+    "image": "receipts/revolut-transfer.png",
+    "expected": {
+      "is_payment_confirmation": true,
+      "amount": 3.40,
+      "currency": "EUR",
+      "payment_date": "2026-10-02",
+      "recipient_name": "Maria Papadopoulou"
+    }
+  },
+  {
+    "image": "receipts/cat-photo.jpg",
+    "expected": {
+      "is_payment_confirmation": false,
+      "amount": null,
+      "currency": null,
+      "payment_date": null,
+      "recipient_name": null
+    }
+  }
+]
