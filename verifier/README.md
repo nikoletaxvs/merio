@@ -88,37 +88,14 @@ Reason codes: `not_a_payment_confirmation`, `amount_unreadable`,
 
 ## Calling it from Merio
 
-```ts
-// lib/verify-receipt.ts (server-side only)
-export type VerificationResult = {
-  status: "verified" | "needs_review";
-  reasons: string[];
-};
+`lib/verify-receipt.ts` in the Merio app is the client, server-side only. It
+reads `VERIFIER_URL` and `VERIFIER_TOKEN` and turns every failure into
+`needs_review` so a member uploading a screenshot never hits an error page.
 
-export async function verifyReceipt(
-  image: File,
-  payment: { amount: string; periodStart: string; recipient?: string },
-): Promise<VerificationResult> {
-  const form = new FormData();
-  form.append("image", image);
-  form.append("expected_amount", payment.amount);
-  form.append("period_start", payment.periodStart);
-  if (payment.recipient) form.append("expected_recipient", payment.recipient);
+## Deploying
 
-  try {
-    const res = await fetch(`${process.env.VERIFIER_URL}/verify`, {
-      method: "POST",
-      headers: { "X-Service-Token": process.env.VERIFIER_TOKEN! },
-      body: form,
-      signal: AbortSignal.timeout(20_000),
-    });
-    if (!res.ok) throw new Error(`Verifier returned ${res.status}`);
-    return await res.json();
-  } catch {
-    return { status: "needs_review", reasons: ["verifier_unavailable"] };
-  }
-}
-```
+[DEPLOY.md](DEPLOY.md) covers PythonAnywhere on the free plan, including the
+one outbound-connection check worth doing before trusting the deployment.
 
 ## Privacy
 

@@ -31,6 +31,27 @@ jobs:
       - name: Unit tests
         run: npm test
 
+  verifier:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: verifier
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+          cache-dependency-path: verifier/requirements-dev.txt
+
+      - run: pip install -r requirements-dev.txt
+
+      # No API key needed: conftest.py sets its own env, and these tests never
+      # call the extractor.
+      - name: Unit and API tests
+        run: pytest -q
+
   e2e:
     runs-on: ubuntu-latest
     # A throwaway Postgres just for this job; it's discarded when the job ends.

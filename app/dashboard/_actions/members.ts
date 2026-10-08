@@ -6,6 +6,7 @@ import { revalidatePath } from "next/cache";
 import { db } from "@/db";
 import { members, payments, subscriptions, users } from "@/db/schema";
 import { getBaseUrl } from "@/lib/base-url";
+import { generatePayments } from "@/lib/billing/generate-payments";
 import { sendReminderToMember } from "@/lib/billing/reminders";
 import { OWNER_ID } from "@/lib/owner";
 import { type ActionState, guard } from "./shared";
@@ -70,11 +71,16 @@ export async function addMember(
 
     const token = crypto.randomBytes(24).toString("hex");
 
-    await db.insert(members).values({
-      subscriptionId: subscription.id,
-      userId: user.id,
-      token,
-    });
+    const [inserted] = await db
+      .insert(members)
+      .values({
+        subscriptionId: subscription.id,
+        userId: user.id,
+        token,
+      })
+      .returning({ id: members.id });
+
+    await generatePayments({ memberIds: [inserted.id] });
 
     revalidatePath("/dashboard");
 
