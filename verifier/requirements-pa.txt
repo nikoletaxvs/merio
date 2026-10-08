@@ -1,0 +1,6 @@
+# PythonAnywhere installs from this file inside its own virtualenv:
+#   pip install -r requirements-pa.txt
+#
+# It only wraps requirements.txt rather than duplicating it so the dependency
+# list stays in one place. See DEPLOY.md for why the Dockerfile isn't used.
+-r requirements.txt
